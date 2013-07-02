@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<title>BRWRY</title>
+<head>
+    <meta charset="utf-8">
+    <title>BRWRY System</title>
+    <meta name="description" content="">
+    <meta name="author" content="Matthew Martz">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}">
+</head>
+<body>
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="brand" href="/">BRWRY</a>
+            <ul class="nav">
+            	<li><a href="" class="">Home</a></li>
+                <li><a href="" class="">About</a></li>
+                <li><a href="">Configure</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">History<b class="caret"></b></a>
+                    <ul class="dropdown-menu" id="history-dropdown"></ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+	{% block content %}Empty page{% endblock %}
+
+    <p><hr></p>
+
+    <footer class="row">
+        <div class="span6">
+            <p>This is a <a href="http://brwry.com">BRWRY System</a>.</p>
+        </div>
+        <div class="span6" style="text-align:right">
+            <p>
+                &copy; <a href="http://twitter.com/martz">Matthew Martz</a> 2012
+                |
+                <a href="">license</a>
+            </p>
+        </div>
+    </footer>
+
+</div> <!-- container -->
+
+</body>
+</html>
