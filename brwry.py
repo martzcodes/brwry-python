@@ -1,4 +1,6 @@
 from flask import Flask, render_template, url_for
+from config import gpio, installed, equipment
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -11,7 +13,7 @@ def brwry_about():
 
 @app.route('/configure')
 def brwry_config():
-	return render_template('configure.html')
+	return render_template('configure.html',gpio=gpio,installed=installed,equipment=equipment)
 
 
 if __name__ == '__main__':
