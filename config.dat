@@ -6,12 +6,13 @@
     "sensorAddress":"28-0000050209e1",
     "correctionFactor":0
    }
-],"elements":[
-   {"elementName":"Heat 1",
-    "gpioPIN":"unk"
+],"heats":[
+   {"deviceName":"Heat 1",
+    "gpioPIN":10
    }
-],"pumps":[   {"pumpName":"Pump 1",
-    "gpioPIN":"unk"
-    }
+],"pumps":[
+   {"deviceName":"Pump 1",
+   "gpioPIN":11
+   }
 ]
 }

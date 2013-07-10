@@ -1,11 +1,31 @@
 from flask import Flask, render_template, url_for, jsonify, request
 from livetemp import LiveTemp
+from device import Device
+from archive import ArchiveData
 import json
-
-liveTemp = LiveTemp()
-liveTemp.start()
+import time
 
 config = json.loads(open('config.dat').read())
+
+t = LiveTemp()
+t.start()
+
+h = Device(config['heats'])
+h.allOff()
+p = Device(config['pumps'])
+p.allOff()
+
+#temporary brwInfo
+brwInfo = {
+	"brwName":"Test Brew",
+	"brwr":"Matt",
+	"brwDate":time.time()
+}
+
+Targets = {}
+
+a = ArchiveData(brwInfo,t,h,p,Targets)
+a.start()
 
 app = Flask(__name__)
 
@@ -19,7 +39,7 @@ def brwry_about():
 
 @app.route('/_liveTempRequest')
 def liveTempRequest():
-	return jsonify(result=liveTemp.getCurTemp())
+	return jsonify(result=t.getCurTemp())
 
 @app.route('/configure')
 def brwry_config():

@@ -71,21 +71,20 @@ class LiveTemp(threading.Thread):
 
                         liveDataWrite[str(sensor['sensorName'])] = temp
 
-                try:
-                	liveData = json.loads(open('live.dat').read())
-                except:
-                	liveData = []
+                    try:
+                	    liveData = json.loads(open('live.dat').read())
+                    except:
+                	    liveData = []
 
-                while len(liveData) > self.liveDataLength:
-                	liveData.pop(0)
-                if len(liveData) == self.liveDataLength:
-                    liveData.pop(0)
+                    while len(liveData) > self.liveDataLength:
+                	    liveData.pop(0)
+                    if len(liveData) == self.liveDataLength:
+                        liveData.pop(0)
             
-                liveData.append(liveDataWrite)
-                self.curTemp = liveDataWrite
+                    liveData.append(liveDataWrite)
+                    self.curTemp = liveDataWrite
 
-                with open('live.dat','w') as outfile:
-                    json.dump(liveData,outfile)
+                    with open('live.dat','w') as outfile:
+                        json.dump(liveData,outfile)
 
-                #if self.archiveCount >= 30:
-                #	archiveData = json.loads(open('archive.dat').read())
+                    print "temp time: ", time.time()
