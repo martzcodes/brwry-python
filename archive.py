@@ -18,6 +18,7 @@ class ArchiveData(threading.Thread):
         self.Targets = Targets
         self._stop = threading.Event()
         self._pause = True
+        self.interval = 60
  
     def stop(self):
         self._stop.set()
@@ -34,7 +35,10 @@ class ArchiveData(threading.Thread):
         self._pause = False
 
     def updateTargets(self,Targets):
-    	self.Targets = Targets
+        self.Targets = Targets
+
+    def setInterval(self,interval):
+        self.interval = interval
  
     def pause(self):
         self._pause = True
@@ -78,4 +82,4 @@ class ArchiveData(threading.Thread):
  
                 with open(self.brwFile,'w') as outfile:
                     json.dump(brwData,outfile)
-            time.sleep(60)
+            time.sleep(self.interval)
