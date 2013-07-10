@@ -1,3 +1,10 @@
+"""
+
+This is another scratch/test file
+
+"""
+
+
 import threading
 import time
 
@@ -9,20 +16,28 @@ class Temp(threading.Thread):
         self.fileName = fileName
         self.currentTemp = -999
         self.correctionFactor = 0
-        self.enabled = True
         self._stop = threading.Event()
+        self._pause = False
 
     def stop(self):
-        print "STOP CALLED"
         self._stop.set()
         print "STOP SET"
+
+    def unpause(self):
+        self._pause = False
+
+    def pause(self):
+        self._pause = True
 
     def stopped(self):
         return self._stop.isSet()
 
+    def paused(self):
+        return self._pause
+
     def run(self):
         while not self._stop.isSet():
-            if self.isEnabled():
+            if not self.paused():
                 try:
                     f = open(self.tempDir + self.fileName + "/w1_slave", 'r')
                 except IOError as e:
@@ -46,9 +61,3 @@ class Temp(threading.Thread):
 
     def getCurrentTemp(self):
         return self.currentTemp
-
-    def setEnabled(self, enabled):
-        self.enabled = enabled
-
-    def isEnabled(self):
-        return self.enabled

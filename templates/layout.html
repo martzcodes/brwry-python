@@ -6,6 +6,11 @@
     <meta name="description" content="">
     <meta name="author" content="Matthew Martz">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}">
+    <script type=text/javascript src="{{
+  url_for('static', filename='jquery-1.10.2.min.js') }}"></script>
+    <script type=text/javascript>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
 </head>
 <body>
 <div class="navbar navbar-fixed-top">
@@ -36,18 +41,42 @@
 <div class="container">
 	<p><hr></p>
 	
+    <p><hr></p>
+
 	<div class="row">
-		<div id="live_time" class="span2"></div>
-		<div id="temp_bk" class="span2"></div>
-		<div id="temp_rims" class="span2"></div>
-		<div id="temp_alt1" class="span2"></div>
-		<div id="temp_alt2" class="span2"></div>
-		<div id="temp_alt3" class="span2"></div>
-	</div>
+        <div id="live_time" class="span2"></div>
+        <div id="live_temps" class="span10"></div>
+    </div>
 
 	{% block content %}Empty page{% endblock %}
 
     <p><hr></p>
+
+<script type="text/javascript">
+$(function () {
+    $(document).ready(function(){
+        function fetchLiveData() {
+            function updateTemp(data) {
+                var temps = [];
+                $.each(data.result, function(key, val) {
+                    if (key=="timestamp")
+                    {
+                        var myDate = new Date(val*1000);
+                        $('#live_time').text(myDate.toLocaleTimeString());
+                    } else {
+                        temps.push('<div class="span2">' + key + '- ' + val + '</div>');
+                    }
+                });
+
+                $('#live_temps').html(temps.join(''));
+            }
+            $.getJSON("{{ url_for('liveTempRequest') }}",updateTemp);
+            setTimeout(fetchLiveData, 500);
+        }
+        setTimeout(fetchLiveData, 500);
+    });
+});
+</script>
 
     <footer class="row">
         <div class="span6">

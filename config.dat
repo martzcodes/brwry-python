@@ -1,0 +1,17 @@
+{"sensors":[
+   {"sensorName":"Temp 1",
+    "sensorAddress":"28-0000050056e6",
+    "correctionFactor":0
+   },{"sensorName":"Temp 2",
+    "sensorAddress":"28-0000050209e1",
+    "correctionFactor":0
+   }
+],"elements":[
+   {"elementName":"Heat 1",
+    "gpioPIN":"unk"
+   }
+],"pumps":[   {"pumpName":"Pump 1",
+    "gpioPIN":"unk"
+    }
+]
+}

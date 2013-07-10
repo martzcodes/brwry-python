@@ -1,5 +1,11 @@
-from flask import Flask, render_template, url_for
-from config import gpio, installed, equipment
+from flask import Flask, render_template, url_for, jsonify, request
+from livetemp import LiveTemp
+import json
+
+liveTemp = LiveTemp()
+liveTemp.start()
+
+config = json.loads(open('config.dat').read())
 
 app = Flask(__name__)
 
@@ -11,9 +17,13 @@ def brwry_main():
 def brwry_about():
 	return render_template('about.html')
 
+@app.route('/_liveTempRequest')
+def liveTempRequest():
+	return jsonify(result=liveTemp.getCurTemp())
+
 @app.route('/configure')
 def brwry_config():
-	return render_template('configure.html',gpio=gpio,installed=installed,equipment=equipment)
+	return render_template('configure.html',config=config)
 
 
 if __name__ == '__main__':
