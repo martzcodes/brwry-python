@@ -13,7 +13,7 @@
     </script>
 </head>
 <body>
-<div class="navbar navbar-fixed-top">
+<div class="navbar">
     <div class="navbar-inner">
         <div class="container">
             <a class="brand" href="/">BRWRY</a>
@@ -39,19 +39,13 @@
 </div>
 
 <div class="container">
-	<p><hr></p>
-	
-    <p><hr></p>
 
-	<div class="row">
-        <div id="live_time" class="span2"></div>
+    <div class="row">
+        <div id="live_time" class="span1"></div>
         <div id="live_temps" class="span10"></div>
     </div>
 
 	{% block content %}Empty page{% endblock %}
-
-    <p><hr></p>
-
 <script type="text/javascript">
 $(function () {
     $(document).ready(function(){
@@ -62,18 +56,44 @@ $(function () {
                     if (key=="timestamp")
                     {
                         var myDate = new Date(val*1000);
-                        $('#live_time').text(myDate.toLocaleTimeString());
+                        $('#live_time').html('<span class = "badge badge-inverse">'+myDate.toLocaleTimeString()+'</span>');
                     } else {
-                        temps.push('<div class="span2">' + key + '- ' + val + '</div>');
+                        temps.push('<div class="span1"><a title="' + key + '"><span class="badge">' + val + '</span></a></div>');
                     }
+                });
+                var heatactive = "";
+                var heatonoff = "off"
+                $.each(data.heat, function(key, val) {
+                    if (val >= 1) {heatactive = " label-important"}
+                    if (key == 1) {heatonoff = "on"}
+                    $.each(data.targets, function(tkey, tval) {
+                        if (key == tkey) {
+                            heatonoff = tval;
+                            heatactive = " label-warning"
+                        }
+                    });
+                    temps.push('<div class="span1"><a title="' + key + '"><span class="badge">' + heatonoff + '</span></a></div>');
+                });
+                var pumpactive = "";
+                var pumponoff = "off"
+                $.each(data.pump, function(key, val) {
+                    if (val >= 1) {pumpactive = " label-info"}
+                    if (key == 1) {pumponoff = "on"}
+                    $.each(data.targets, function(tkey, tval) {
+                        if (key == tkey) {
+                            pumponoff = tval;
+                            pumpactive = " label-warning"
+                        }
+                    });
+                    temps.push('<div class="span1"><a title="' + key + '"><span class="badge' + pumpactive +'">' + pumponoff + '</span></a></div>');
                 });
 
                 $('#live_temps').html(temps.join(''));
             }
             $.getJSON("{{ url_for('liveTempRequest') }}",updateTemp);
-            setTimeout(fetchLiveData, 500);
+            setTimeout(fetchLiveData, 2000);
         }
-        setTimeout(fetchLiveData, 500);
+        setTimeout(fetchLiveData, 2000);
     });
 });
 </script>

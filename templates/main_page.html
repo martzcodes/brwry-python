@@ -1,128 +1,18 @@
 {% extends "layout.html" %}
 {% block content %}
+    	<form class="navbar-form pull-left">
+  			<input type="text" class="span2" placeholder="Brew Name">
+  			<input type="text" class="span2" placeholder="Brewer">
+  			<button type="submit" class="btn">Update</button>
+		</form>
     	<div class="row">
 		<div class="span8">
 			<div id="flot_chart" style="width: 100%; height: 300px;"></div>
 		</div>
 		<div class="span4">
-	        <p>BRW Name: <input id="brwName" type="text" value="testdata" style="text-align: right; width:5em"></p>
-			<p><input id="dataUpdate" class="btn btn-large btn-block btn-primary" type="button" value="Start"></p>
-			<p><input id="stop" class="btn btn-large btn-block" type="button" value="Stopped"/></p>
-			<div id="choices">
-				<label class="checkbox"><input type="checkbox" name="t_b" checked="checked" id="t_b_check">
-				Boil Kettle Temp</label>
-				<label class="checkbox"><input type="checkbox" name="t_r" checked="checked" id="t_r_check">
-				RIMS Temp</label>
-				<label class="checkbox"><input type="checkbox" name="t_a1" checked="checked" id="t_a1_check">
-				Alt 1 Temp</label>
-				<label class="checkbox"><input type="checkbox" name="t_a2" checked="checked" id="t_a2_check">
-				Alt 2 Temp</label>
-				<label class="checkbox"><input type="checkbox" name="t_a3" checked="checked" id="t_a3_check">
-				Alt 3 Temp</label>
-			</div>
 		</div>
 	</div>
-    <form class="form-horizontal" method="POST">
-		<div class="row">
-			<div class="span6">
-				<h2>Element Control</h2>
-				
-				<h3>Boil Kettle</h3>
-				<div class="row">
-					<div class="span3">
-					</div>
-					<div class="span2">
-					</div>
-				</div>
 	
-				<h3>RIMS</h3>
-				<div class="row">
-					<div class="span3">
-					</div>
-					<div class="span2">
-					</div>
-				</div>
-
-				<h3>Other</h3>
-				<div class="row">
-					<div class="span3">
-					</div>
-					<div class="span2">
-					</div>
-				</div>
-			</div>
-			
-			<div class="span3">
-				<h2>Valve Controls</h2>
-				<div class="row">
-					<div class="span1">
-						<span class="help-inline">Valve 1</span>
-					</div>
-					<div class="span2">
-					</div>
-				</div>
-				<div class="row">
-					<div class="span1">
-						<span class="help-inline">Valve 2</span>
-					</div>
-					<div class="span2">
-					</div>
-				</div>
-				<div class="row">
-					<div class="span1">
-						<span class="help-inline">Valve 3</span>
-					</div>
-					<div class="span2">
-					</div>
-				</div>
-				<div class="row">
-					<div class="span1">
-						<span class="help-inline">Valve 4</span>
-					</div>
-					<div class="span2">
-					</div>
-				</div>
-				<div class="row">
-					<div class="span1">
-						<span class="help-inline">Valve 5</span>
-					</div>
-					<div class="span2">
-					</div>
-				</div>
-				<div class="row">
-					<div class="span1">
-						<span class="help-inline">Valve 6</span>
-					</div>
-					<div class="span2">
-					</div>
-				</div>
-			</div>
-			<div class="span3">
-				<h2>Pump Controls</h2>
-				<div class="row">
-					<div class="span1">
-						<span class="help-inline">Pump 1</span>
-					</div>
-					<div class="span2">
-					</div>
-				</div>
-				<div class="row">
-					<div class="span1">
-						<span class="help-inline">Pump 2</span>
-					</div>
-					<div class="span2">
-					</div>
-				</div>
-	
-			</div>
-		</div>
-	    <p>&nbsp;</p>
-    	<div class="row">
-    		<div class="span12">
-				<input type="submit" class="btn btn-large btn-block btn-primary" value="Submit Changes &raquo;">
-    		</div>
-    	</div>
-    </form>
     <div class="row">
 		<div class="span4">
 		<h2>Timeline Key</h2>

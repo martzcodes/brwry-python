@@ -86,5 +86,3 @@ class LiveTemp(threading.Thread):
 
                     with open('live.dat','w') as outfile:
                         json.dump(liveData,outfile)
-
-                    print "temp time: ", time.time()

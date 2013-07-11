@@ -39,7 +39,7 @@ def brwry_about():
 
 @app.route('/_liveTempRequest')
 def liveTempRequest():
-	return jsonify(result=t.getCurTemp())
+	return jsonify(result=t.getCurTemp(),heat=h.getCurStatus(),pump=p.getCurStatus(),targets=Targets)
 
 @app.route('/configure')
 def brwry_config():
