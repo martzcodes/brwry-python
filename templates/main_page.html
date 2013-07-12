@@ -63,8 +63,6 @@ $(function () {
 			$("#brwNameIn").hide();
 			$("#brwrIn").hide();
 
-			$.post("{{ url_for('startBrw') }}",JSON.stringify({brwName:brwName,brwr:brwr}))
-/*
 			$.ajax({
 				type: 'POST',
 				url:"{{ url_for('startBrw') }}",
@@ -81,7 +79,7 @@ $(function () {
 				},
 				contentType: "application/json",
 				dataType: 'json'
-			});*/
+			});
 		});
 		$("#endbtn").click(function() {
 			$("#brwNameOut").hide();
