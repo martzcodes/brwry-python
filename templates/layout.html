@@ -8,6 +8,8 @@
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}">
     <script type=text/javascript src="{{
   url_for('static', filename='jquery-1.10.2.min.js') }}"></script>
+  <script type=text/javascript src="{{
+  url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
     <script type=text/javascript>
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
@@ -41,59 +43,113 @@
 <div class="container">
 
     <div class="row">
-        <div id="live_time" class="span1"></div>
-        <div id="live_temps" class="span10"></div>
+        <div id="live_time" class="span2"></div>
+        <div id="live_temps" class="span8"></div>
+        <div class="span2"><button id="EMER_OFF" class="btn btn-block btn-danger" type="button">EMERGENCY OFF</button></div>
     </div>
 
 	{% block content %}Empty page{% endblock %}
 <script type="text/javascript">
 $(function () {
+    // Setup drop down menu
+    $('.dropdown-toggle').dropdown();
+    // Fix input element click problem
+    $('.dropdown input, .dropdown label').click(function(e) {
+        e.stopPropagation();
+    });
+
     $(document).ready(function(){
+        var initializeDevices = true;
+
+        $("#EMER_OFF").click(function() {
+          $.get("{{ url_for('allOff') }}");
+        });
+
         function fetchLiveData() {
             function updateTemp(data) {
                 var temps = [];
-                $.each(data.result, function(key, val) {
-                    if (key=="timestamp")
-                    {
-                        var myDate = new Date(val*1000);
-                        $('#live_time').html('<span class = "badge badge-inverse">'+myDate.toLocaleTimeString()+'</span>');
-                    } else {
-                        temps.push('<div class="span1"><a title="' + key + '"><span class="badge">' + val + '</span></a></div>');
-                    }
-                });
-                var heatactive = "";
-                var heatonoff = "off"
+                var heatpump = [];
                 $.each(data.heat, function(key, val) {
-                    if (val >= 1) {heatactive = " label-important"}
-                    if (key == 1) {heatonoff = "on"}
-                    $.each(data.targets, function(tkey, tval) {
-                        if (key == tkey) {
-                            heatonoff = tval;
-                            heatactive = " label-warning"
-                        }
-                    });
-                    temps.push('<div class="span1"><a title="' + key + '"><span class="badge">' + heatonoff + '</span></a></div>');
+                    //heatpump.push('<input class="btn btn-block" type="submit" name="addtarget-'+key+'" value="" />');
                 });
-                var pumpactive = "";
-                var pumponoff = "off"
                 $.each(data.pump, function(key, val) {
-                    if (val >= 1) {pumpactive = " label-info"}
-                    if (key == 1) {pumponoff = "on"}
+                    //heatpump.push('<input class="btn btn-block" type="submit" name="addtarget-'+key+'" value="" />');
+                });
+                $.each(data.result, function(key, val) {
+                    if (key=="timestamp") {
+                        var myDate = new Date(val*1000);
+                        $('#live_time').html('<button class="btn btn-block btn-inverse">'+myDate.toLocaleTimeString()+'</button>');
+                    } else {
+                        temps.push('<div class="btn-group span1"><button class="btn btn-block dropdown-toggle" title="' + key + '" data-toggle="dropdown">' + val + ' <span class="caret"></button><div class="dropdown-menu"><form action="" method="post" accept-charset="UTF-8"><input id="user_username" type="text" name="'+key+'-target" />'+heatpump.join('')+'</form></div></div>');
+                    };
+                });
+                var deviceactive = "";
+                var deviceonoff = "off";
+                var removetarget = "";
+                $.each(data.heat, function(key, val) {
+                    deviceactive = "";
+                    deviceonoff = "off";
+                    removetarget = "";
+                    if (val == 1) {
+                        deviceonoff = "on";
+                    };
                     $.each(data.targets, function(tkey, tval) {
                         if (key == tkey) {
-                            pumponoff = tval;
-                            pumpactive = " label-warning"
-                        }
+                            deviceonoff = tval;
+                            deviceactive = " btn-warning";
+                            removetarget = '<li class="divider"></li><li><a class="deviceremove" value="'+key+'" href="#">Remove Target</a></li>';
+                        };
                     });
-                    temps.push('<div class="span1"><a title="' + key + '"><span class="badge' + pumpactive +'">' + pumponoff + '</span></a></div>');
+                    if (val >= 1) {
+                        deviceactive = " btn-important";
+                    };
+
+                    temps.push('<div class="btn-group span1"><button class="btn btn-block dropdown-toggle' + deviceactive + '" title="' + key + '" data-toggle="dropdown">' + deviceonoff + ' <span class="caret"></button><ul class="dropdown-menu"><li>'+key+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+key+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+key+'" href="#">On</a></li>'+removetarget+'</ul></div>');
                 });
 
+                $.each(data.pump, function(key, val) {
+                    deviceactive = "";
+                    deviceonoff = "off";
+                    removetarget = "";
+                    if (val == 1) {
+                        deviceonoff = "on";
+                    };
+                    $.each(data.targets, function(tkey, tval) {
+                        if (key == tkey) {
+                            deviceonoff = tval;
+                            deviceactive = " btn-warning";
+                            removetarget = '<li class="divider"></li><li><a class="deviceremove" value="'+key+'" href="#">Remove Target</a></li>';
+                        };
+                    });
+                    if (val >= 1) {
+                        deviceactive = " btn-important";
+                    };
+
+                    temps.push('<div class="btn-group span1"><button class="btn btn-block dropdown-toggle' + deviceactive + '" title="' + key + '" data-toggle="dropdown">' + deviceonoff + ' <span class="caret"></button><ul class="dropdown-menu"><li>'+key+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+key+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+key+'" href="#">On</a></li>'+removetarget+'</ul></div>');
+                });
+                 
                 $('#live_temps').html(temps.join(''));
-            }
+
+                $("a.deviceonoff").click(function() {
+                    var deviceName = event.target.getAttribute('value');
+                    var onOff = event.target.getAttribute('command');
+                    $.ajax({
+                        type: 'POST',
+                        url:"{{ url_for('deviceOnOff') }}",
+                        data: JSON.stringify({deviceName:deviceName,onOff:onOff}),
+                        success: function(data){
+
+                        },
+                        contentType: "application/json",
+                        dataType: 'json'
+                    });
+                });
+
+            };
             $.getJSON("{{ url_for('liveTempRequest') }}",updateTemp);
             setTimeout(fetchLiveData, 2000);
-        }
-        setTimeout(fetchLiveData, 2000);
+        };
+        fetchLiveData();
     });
 });
 </script>

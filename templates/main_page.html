@@ -1,25 +1,113 @@
 {% extends "layout.html" %}
 {% block content %}
-    	<form class="navbar-form pull-left">
-  			<input type="text" class="span2" placeholder="Brew Name">
-  			<input type="text" class="span2" placeholder="Brewer">
-  			<button type="submit" class="btn">Update</button>
-		</form>
-    	<div class="row">
-		<div class="span8">
-			<div id="flot_chart" style="width: 100%; height: 300px;"></div>
-		</div>
-		<div class="span4">
-		</div>
-	</div>
-	
-    <div class="row">
-		<div class="span4">
-		<h2>Timeline Key</h2>
-		</div>
-		<div class="span8">
-		<h2>#BRWRY Feed</h2>
-		</div>
-	</div>
 
-	{% endblock %}
+<div class="row">
+	<div class="span8"></div>
+	<div class="span4">
+		<div class="row">
+			<div class="span1"><button id="startbtn" class="btn btn-block btn-success">Start</button></div>
+			<div class="span1"><button id="resumebtn" class="btn btn-block btn-info">Resume</button></div>
+			<div class="span1"><button id="pausebtn" class="btn btn-block btn-warning">Pause</button></div>
+			<div class="span1"><button id="endbtn" class="btn btn-block btn-danger">End</button></div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="span8">
+		<div>Chart Goes Here</div>
+	</div>
+	<div class="span4">
+		<div class="row">
+			<ul id="mainTab" class="nav nav-tabs">
+				<li class="active"><a href="#brw" data-toggle="tab">BRW</a></li>
+				<li><a href="#notes" data-toggle="tab">Notes</a></li>
+				<li><a href="#twt" data-toggle="tab">TWT</a></li>
+			</ul>
+			<div id="mainTabContent" class="tab-content">
+				<div class="tab-pane fade in active" id="brw">
+					<input id="brwNameIn" type="text" class="span2" placeholder="Brew Name">
+					<input id="brwrIn" type="text" class="span2" placeholder="Brewer">
+					<p id="brwNameOut"></p>
+					<p id="brwrOut"></p>
+					<p id="brwDateOut"></p>
+				</div>
+				<div class="tab-pane fade" id="notes">
+					<p>Will allow manual entry of notes and viewing of annotations/instructions at some point</p>
+				</div>
+				<div class="tab-pane fade" id="twt">
+					<p>Will show twitter feed at some point</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+	$(document).ready(function(){
+		$('#mainTab a').click(function(e) {
+			e.preventDefault();
+			$(this).tab('show');
+		});
+		$("#endbtn").hide();
+		$("#pausebtn").hide();
+		$("#resumebtn").hide();
+		
+		$("#startbtn").click(function() {
+			brwName=$("#brwNameIn").val();
+			brwr=$("#brwrIn").val();
+			$("#startbtn").hide();
+			$("#endbtn").show();
+			$("#pausebtn").show();
+			$("#brwNameIn").hide();
+			$("#brwrIn").hide();
+
+			$.post("{{ url_for('startBrw') }}",JSON.stringify({brwName:brwName,brwr:brwr}))
+/*
+			$.ajax({
+				type: 'POST',
+				url:"{{ url_for('startBrw') }}",
+				data: JSON.stringify({brwName:brwName,"brwr":brwr}),
+				success: function(data){
+		    //show and fill brwName, brwr, and brwDate fields
+		    		$("#brwNameOut").text(brwName);
+		    		$("#brwNameOut").show();
+				    $("#brwrOut").text(brwr);
+				    $("#brwrOut").show();
+				    var myDate = new Date(data.result['brwDate']*1000);
+				    $("#brwDateOut").text(myDate.toLocaleDateString());
+				    $("#brwDateOut").show();
+				},
+				contentType: "application/json",
+				dataType: 'json'
+			});*/
+		});
+		$("#endbtn").click(function() {
+			$("#brwNameOut").hide();
+			$("#brwrOut").hide();
+			$("#brwDateOut").hide();
+			$("#startbtn").show();
+			$("#endbtn").hide();
+			$("#pausebtn").hide();
+			$("#resumebtn").hide();
+			$("#brwNameIn").show();
+			$("#brwrIn").show();
+
+			$.get("{{ url_for('endBrw') }}");
+		});
+		$("#pausebtn").click(function() {
+			$("#pausebtn").hide();
+			$("#resumebtn").show();
+			$.get("{{ url_for('pauseBrw') }}");
+		});
+		$("#resumebtn").click(function() {
+			$("#resumebtn").hide();
+			$("#pausebtn").show();
+
+			$.get("{{ url_for('resumeBrw') }}");
+		});
+	});
+});
+</script>
+{% endblock %}

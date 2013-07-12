@@ -64,7 +64,9 @@ class LiveTemp(threading.Thread):
                         result_list = tempLine.split("=")
 
                         temp = float(result_list[-1])/1000
+                        temp = (temp*9/5) + 32
                         temp = temp + sensor["correctionFactor"]
+                        temp = float("%.2f" % temp)
 
                         if crcLine.find("NO") > -1:
                             temp = -999
