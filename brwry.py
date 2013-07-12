@@ -14,6 +14,8 @@ h = Device(config['heats'])
 h.allOff()
 p = Device(config['pumps'])
 p.allOff()
+v = Device(config['valves'])
+v.allOff()
 
 #temporary brwInfo
 brwInfo = {
@@ -24,7 +26,7 @@ brwInfo = {
 
 Targets = []
 
-a = ArchiveData(brwInfo,t,h,p,Targets,config['storage'])
+a = ArchiveData(brwInfo,t,h,p,v,Targets,config['storage'])
 a.start()
 
 app = Flask(__name__)
@@ -48,11 +50,11 @@ def brwry_about():
 
 @app.route('/_liveTempRequest')
 def liveTempRequest():
-    return jsonify(result=t.getCurTemp(),heat=h.getCurStatus(),pump=p.getCurStatus(),targets=Targets)
+    return jsonify(result=t.getCurTemp(),heat=h.getCurStatus(),pump=p.getCurStatus(),valve=v.getCurStatus(),targets=Targets)
 
 @app.route('/_configRequest')
 def configRequest():
-    return jsonify(heat=config['heats'],pump=config['pumps'],sensor=config['sensors'])
+    return jsonify(heat=config['heats'],pump=config['pumps'],sensor=config['sensors'],valve=config['valves'])
 
 @app.route('/configure')
 def brwry_config():
@@ -93,6 +95,12 @@ def deviceOnOff():
                 for ind, target in enumerate(Targets):
                     if target['device'] == request.json['deviceName']:
                         Targets.pop(ind)
+    for valve in config['valves']:
+        if valve['deviceName'] == request.json['deviceName']:
+            if request.json['onOff'] == "ON":
+                v.deviceOn(valve['gpioPIN'])
+            else:
+                v.deviceOff(valve['gpioPIN'])
     
     return "Success"
  
@@ -119,6 +127,7 @@ def endBrw():
     a.pause()
     h.allOff()
     p.allOff()
+    v.allOff()
     Targets = []
     print "brew ended"
  

@@ -17,8 +17,12 @@
    "gpioPIN":11,
    "sensors":["Temp 2"]
    }
+],"valves":[
+  {"deviceName":"Valve 1",
+  "gpioPIN":14
+  }
 ],"gpioPINs":{
    "available":[2,3,7,8,9,14,15,17,18,23,24,25],
-   "unavailable":[10,11]
+   "unavailable":[10,11,14]
 }
 }

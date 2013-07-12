@@ -7,7 +7,7 @@ io.setmode(io.BCM)
 config = json.loads(open('config.dat').read())
  
 class ArchiveData(threading.Thread):
-    def __init__(self, brwInfo,Temps,Heats,Pumps,Targets,storage):
+    def __init__(self, brwInfo,Temps,Heats,Pumps,Valves,Targets,storage):
         threading.Thread.__init__(self)
         self.tempDir = '/sys/bus/w1/devices/'
         self.brwInfo = brwInfo
@@ -16,6 +16,7 @@ class ArchiveData(threading.Thread):
         self.Temps = Temps
         self.Heats = Heats
         self.Pumps = Pumps
+        self.Valves = Valves
         self.Targets = Targets
         self._stop = threading.Event()
         self._pause = True
@@ -74,6 +75,10 @@ class ArchiveData(threading.Thread):
                 curPumps = self.Pumps.getCurStatus()
                 for pump in curPumps:
                     archiveDataWrite[pump]=curPumps[pump]
+
+                curValves = self.Valves.getCurStatus()
+                for valve in curValves:
+                    archiveDataWrite[valve]=curValves[valve]
 
                 archiveDataWrite["targets"]=[]
                 for target in self.Targets:

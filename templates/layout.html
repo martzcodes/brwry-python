@@ -65,18 +65,21 @@ $(function () {
           $.get("{{ url_for('allOff') }}");
         });
 
-        var config_heats = {};
-        var config_pumps = {};
-        var config_sensors = {};
+        var config_heats = [];
+        var config_pumps = [];
+        var config_sensors = [];
+        var config_valves = [];
         
         var sensorList = [];
         var heatList = [];
         var pumpList = [];
+        var valveList = [];
 
         function loadConfig(data) {
             config_sensors = data.sensor;
             config_heats = data.heat;
             config_pumps = data.pump;
+            config_valves = data.valve;
 
             var heatpump = [];
             var temps = [];
@@ -106,30 +109,26 @@ $(function () {
                 temps.push('<div class="btn-group span1"><button class="btn btn-block dropdown-toggle" title="' + sensor['sensorName'] + '" data-toggle="dropdown"><span id="'+sensID+'"></span><span class="caret"></button><ul class="dropdown-menu"><li>'+sensor['sensorName']+'</li><li class="divider"></li>'+heatpump.join('')+'</ul></div></div>');
             });
             
-            //var targetsens = [];
             $.each(config_heats, function(key,device) {
                 heatID="heatID-"+device['deviceName'].replace(' ','');
                 heatList.push(heatID);
-/*                
-                $.each(device['sensors'], function(index,sens) {
-                    var tarID=device['deviceName'].replace(' ','')+'-'+sens.replace(' ','');
-                    targetsens.push('<li><a id="'+tarID+'" class="removeTarget" device="'+device['deviceName']+'" sensor="'+sens+'" disabled>Remove '+sens+'</a></li>');
-                });
-*/
+
                 temps.push('<div class="btn-group span1"><button id="'+heatID+'" class="btn btn-block dropdown-toggle" title="' + device['deviceName'] + '" data-toggle="dropdown"><span class="caret"></button><ul class="dropdown-menu"><li>'+device['deviceName']+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+device['deviceName']+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+device['deviceName']+'" href="#">On</a></li></ul></div>');
             });
 
-            //targetsens = [];
+            
             $.each(config_pumps, function(key,device) {
                 pumpID="pumpID-"+device['deviceName'].replace(' ','');
                 pumpList.push(pumpID);
-/*
-                $.each(device['sensors'], function(index,sens) {
-                    var tarID=device['deviceName'].replace(' ','')+'-'+sens.replace(' ','');
-                    targetsens.push('<li><a id="'+tarID+'" class="removeTarget" device="'+device['deviceName']+'" sensor="'+sens+'" disabled>Remove '+sens+'</a></li>');
-                });
-*/
+
                 temps.push('<div class="btn-group span1"><button id="'+pumpID+'" class="btn btn-block dropdown-toggle" title="' + device['deviceName'] + '" data-toggle="dropdown"><span class="caret"></button><ul class="dropdown-menu"><li>'+device['deviceName']+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+device['deviceName']+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+device['deviceName']+'" href="#">On</a></li></ul></div>');
+            });
+
+            $.each(config_valves, function(key,device) {
+                valveID="valveID-"+device['deviceName'].replace(' ','');
+                valveList.push(valveID);
+
+                temps.push('<div class="btn-group span1"><button id="'+valveID+'" class="btn btn-block dropdown-toggle" title="' + device['deviceName'] + '" data-toggle="dropdown"><span class="caret"></button><ul class="dropdown-menu"><li>'+device['deviceName']+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+device['deviceName']+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+device['deviceName']+'" href="#">On</a></li></ul></div>');
             });
 
             $('#live_temps').html(temps.join(''));
@@ -153,24 +152,6 @@ $(function () {
                     dataType: 'json'
                 });
             });
-/*
-            $("a.removeTarget").click(function() {
-                var deviceName = event.target.getAttribute('device');
-                var tarSens = event.target.getAttribute('sensor');
-                $.ajax({
-                    type: 'POST',
-                    url:"{{ url_for('removeTarget') }}",
-                    data: JSON.stringify({device:deviceName,sensor:tarSens}),
-                    success: function(data){
-                        var tarID='#'+deviceName.replace(' ','')+'-'+tarSens.replace(' ','');
-                        $(tarID).attr('disabled','disabled');
-                        fetchLiveData();
-                    },
-                    contentType: "application/json",
-                    dataType: 'json'
-                });
-            });
-*/
 
             $("a.deviceonoff").click(function() {
                 var deviceName = event.target.getAttribute('value');
@@ -257,6 +238,21 @@ $(function () {
                     var pumpID = "#pumpID-"+key.replace(' ','');
                     $(pumpID).html(devonoff + '<span class="caret">');
                     $(pumpID).attr('class',deviceactive)
+
+                });
+
+                $.each(data.valve, function(key, val) {
+                    deviceactive = "btn btn-block";
+                    devonoff = "off";
+                    var valveID = "#valveID-"+key.replace(' ','');
+                    $(valveID).attr('value',key)
+
+                    if (val == 1) {
+                        devonoff = "on";
+                        deviceactive = "btn btn-block btn-success ";
+                    };
+                    $(valveID).html(devonoff);
+                    $(valveID).attr('class',deviceactive)
 
                 });
 
