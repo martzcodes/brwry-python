@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<title>BRWRY</title>
+<head>
+    <meta charset="utf-8">
+    <title>BRWRY System</title>
+    <meta name="description" content="">
+    <meta name="author" content="Matthew Martz">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}">
+    <script type=text/javascript src="{{
+  url_for('static', filename='jquery-1.10.2.min.js') }}"></script>
+  <script type=text/javascript src="{{
+  url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+    <script type=text/javascript>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+</head>
+<body>
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="brand" href="/">BRWRY</a>
+            <ul class="nav">
+            	<div id="live_time" class="span2"></div>
+                <li><a href="{{ url_for('brwry_main') }}" class="">Home</a></li>
+                <li><a href="{{ url_for('brwry_about') }}" class="">About</a></li>
+                <li><a href="{{ url_for('brwry_config') }}" class="">Configure</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Recipes<b class="caret"></b></a>
+                    <ul class="dropdown-menu" id="recipe-dropdown">
+                    	<li><a href="" class=""></a>New Recipe</li>
+                    	<li><a href="" class=""></a>Calculator</li>
+                    	<li><a href="" class=""></a>Old Recipes</li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Archived<b class="caret"></b></a>
+                    <ul class="dropdown-menu" id="archive-dropdown"></ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="row">
+        <div id="target_temp" class="span1"><input type="text" class="input-small" placeholder="Target"></div>
+        <div id="live_temps" class="span8"></div>
+        <div class="span2"><button id="EMER_OFF" class="btn btn-block btn-danger" type="button">EMERGENCY OFF</button></div>
+    </div>
+
+	{% block content %}Empty page{% endblock %}
+<script type="text/javascript">
+$(function () {
+    // Setup drop down menu
+    $('.dropdown-toggle').dropdown();
+    // Fix input element click problem
+    $('.dropdown input, .dropdown label').click(function(e) {
+        e.stopPropagation();
+    });
+
+    $(document).ready(function(){
+
+        $("#EMER_OFF").click(function() {
+          $.get("{{ url_for('allOff') }}");
+        });
+
+        var config_heats = {};
+        var config_pumps = {};
+        var config_sensors = {};
+
+        function loadConfig(data) {
+            config_sensors = data.sensor;
+            config_heats = data.heat;
+            config_pumps = data.pump;
+        }
+
+        $.getJSON("{{ url_for('configRequest') }}",loadConfig);
+
+        function fetchLiveData() {
+            function updateTemp(data) {
+                var temps = [];
+                var heatpump = [];
+
+                $.each(data.result, function(key, val) {
+                    if (key=="timestamp") {
+                        var myDate = new Date(val*1000);
+                        $('#live_time').html('<button class="btn btn-block btn-inverse">'+myDate.toLocaleTimeString()+'</button>');
+                    } else {
+                        heatpump =[];
+                        $.each(config_heats, function(index,value) {
+                            $.each(value['sensors'], function(ind,sens) {
+                                if (sens==key) {
+                                    heatpump.push('<li><a class="addTarget" href="#" value="'+value['deviceName']+'">Target '+value['deviceName']+'</a></li>');
+                                };
+                            });
+                        });
+                        $.each(config_pumps, function(index,value) {
+                            $.each(value['sensors'], function(ind,sens) {
+                                if (sens==key) {
+                                    heatpump.push('<li><a class="addTarget" href="#" value="'+value['deviceName']+'">Target '+value['deviceName']+'</a></li>');
+                                };
+                            });
+                        });
+                        temps.push('<div class="btn-group span1"><button class="btn btn-block dropdown-toggle" title="' + key + '" data-toggle="dropdown">' + val + ' <span class="caret"></button><ul class="dropdown-menu"><li>'+key+'</li><li class="divider"></li>'+heatpump.join('')+'</ul></div></div>');
+                    };
+                });
+                var deviceactive = "";
+                var devonoff = "off";
+                var removetarget = "";
+                $.each(data.heat, function(key, val) {
+                    deviceactive = "";
+                    deviceonoff = "off";
+                    removetarget = "";
+                    if (val == 1) {
+                        devonoff = "on";
+                    };
+                    $.each(data.targets, function(tkey, tval) {
+                        if (key == tval['device']) {
+                            devonoff = tval['target'];
+                            deviceactive = " btn-warning";
+                            removetarget = '<li class="divider"></li><li><a class="deviceremove" value="'+key+'" href="#">Remove Target</a></li>';
+                        };
+                    });
+                    if (val >= 1) {
+                        deviceactive = " btn-danger";
+                    };
+
+                    temps.push('<div class="btn-group span1"><button class="btn btn-block dropdown-toggle' + deviceactive + '" title="' + key + '" data-toggle="dropdown">' + devonoff + ' <span class="caret"></button><ul class="dropdown-menu"><li>'+key+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+key+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+key+'" href="#">On</a></li>'+removetarget+'</ul></div>');
+                });
+
+                $.each(data.pump, function(key, val) {
+                    deviceactive = "";
+                    devonoff = "off";
+                    removetarget = "";
+                    if (val == 1) {
+                        devonoff = "on";
+                    };
+                    $.each(data.targets, function(tkey, tval) {
+                        if (key == tval['device']) {
+                            devonoff = tval['target'];
+                            deviceactive = " btn-warning";
+                            removetarget = '<li class="divider"></li><li><a class="deviceremove" value="'+key+'" href="#">Remove Target</a></li>';
+                        };
+                    });
+                    if (val >= 1) {
+                        deviceactive = " btn-primary";
+                    };
+
+                    temps.push('<div class="btn-group span1"><button class="btn btn-block dropdown-toggle' + deviceactive + '" title="' + key + '" data-toggle="dropdown">' + devonoff + ' <span class="caret"></button><ul class="dropdown-menu"><li>'+key+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+key+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+key+'" href="#">On</a></li>'+removetarget+'</ul></div>');
+                });
+                 
+                $('#live_temps').html(temps.join(''));
+
+                $("a.deviceonoff").click(function() {
+                    var deviceName = event.target.getAttribute('value');
+                    var onOff = event.target.getAttribute('command');
+                    $.ajax({
+                        type: 'POST',
+                        url:"{{ url_for('deviceOnOff') }}",
+                        data: JSON.stringify({deviceName:deviceName,onOff:onOff}),
+                        success: function(data){
+                            fetchLiveData();
+                        },
+                        contentType: "application/json",
+                        dataType: 'json'
+                    });
+                });
+
+            };
+            $.getJSON("{{ url_for('liveTempRequest') }}",updateTemp);
+            setTimeout(fetchLiveData, 2000);
+        };
+        fetchLiveData();
+    });
+});
+</script>
+
+    <footer class="row">
+        <div class="span6">
+            <p>This is a <a href="http://brwry.com">BRWRY System</a>.</p>
+        </div>
+        <div class="span6" style="text-align:right">
+            <p>
+                &copy; <a href="http://twitter.com/martz">Matthew Martz</a> 2012
+                |
+                <a href="">license</a>
+            </p>
+        </div>
+    </footer>
+
+</div> <!-- container -->
+
+</body>
+</html>

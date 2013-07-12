@@ -74,7 +74,7 @@ class LiveTemp(threading.Thread):
                         liveDataWrite[str(sensor['sensorName'])] = temp
 
                     try:
-                	    liveData = json.loads(open('live.dat').read())
+                	    liveData = json.loads(open(config['storage']+'live.dat').read())
                     except:
                 	    liveData = []
 
@@ -86,5 +86,5 @@ class LiveTemp(threading.Thread):
                     liveData.append(liveDataWrite)
                     self.curTemp = liveDataWrite
 
-                    with open('live.dat','w') as outfile:
+                    with open(config['storage']+'live.dat','w') as outfile:
                         json.dump(liveData,outfile)

@@ -7,10 +7,11 @@ io.setmode(io.BCM)
 config = json.loads(open('config.dat').read())
  
 class ArchiveData(threading.Thread):
-    def __init__(self, brwInfo,Temps,Heats,Pumps,Targets):
+    def __init__(self, brwInfo,Temps,Heats,Pumps,Targets,storage):
         threading.Thread.__init__(self)
         self.tempDir = '/sys/bus/w1/devices/'
         self.brwInfo = brwInfo
+        self.brewDir = storage
         self.brwFile = str(brwInfo['brwDate'])+'-'+brwInfo['brwr']+'-'+brwInfo['brwName']+'.brw'
         self.Temps = Temps
         self.Heats = Heats
@@ -53,7 +54,7 @@ class ArchiveData(threading.Thread):
         while not self._stop.isSet():
             if not self.paused():
                 try:
-                    brwData = json.loads(open(self.brwFile).read())
+                    brwData = json.loads(open(self.brwDir+self.brwFile).read())
                 except:
                     brwData = {"archive":[]}
                     for info in self.brwInfo:
@@ -81,6 +82,6 @@ class ArchiveData(threading.Thread):
                 brwData['archive'].append(archiveDataWrite)
                 print brwData
  
-                with open(self.brwFile,'w') as outfile:
+                with open(self.brwDir+self.brwFile,'w') as outfile:
                     json.dump(brwData,outfile)
             time.sleep(self.interval)

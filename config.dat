@@ -1,4 +1,5 @@
-{"sensors":[
+{"storage":"/media/chaos/brwry/",
+"sensors":[
    {"sensorName":"Temp 1",
     "sensorAddress":"28-0000050056e6",
     "correctionFactor":0
@@ -8,11 +9,16 @@
    }
 ],"heats":[
    {"deviceName":"Heat 1",
-    "gpioPIN":10
+    "gpioPIN":10,
+    "sensors":["Temp 1","Temp 2"]
    }
 ],"pumps":[
    {"deviceName":"Pump 1",
-   "gpioPIN":11
+   "gpioPIN":11,
+   "sensors":["Temp 2"]
    }
-]
+],"gpioPINs":{
+   "available":[2,3,7,8,9,14,15,17,18,23,24,25],
+   "unavailable":[10,11]
+}
 }
