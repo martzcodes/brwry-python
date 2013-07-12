@@ -74,8 +74,9 @@ class ArchiveData(threading.Thread):
                 for pump in curPumps:
                     archiveDataWrite[pump]=curPumps[pump]
 
+                archiveDataWrite["targets"]=[]
                 for target in self.Targets:
-                    archiveDataWrite[target]=self.Targets[target]
+                    archiveDataWrite["targets"].append(target)
  
                 brwData['archive'].append(archiveDataWrite)
                 print brwData

@@ -17,10 +17,11 @@ class Device:
                 print "Does Not Match Existing Device"
  
     def deviceOff(self,pin):
-        if device['gpioPIN'] == pin:
+        for device in self.devices:
+            if device['gpioPIN'] == pin:
                 io.output(pin,False)
-        else:
-            print "Does Not Match Existing Device"
+            else:
+                print "Does Not Match Existing Device"
 
     def updateDevices(self,devices):
         self.devices = devices
@@ -29,6 +30,7 @@ class Device:
         curStatus = {}
         for device in self.devices:
             curStatus[str(device['deviceName'])] = io.input(device['gpioPIN'])
+
         return curStatus
  
     def deviceStatus(self,pin):

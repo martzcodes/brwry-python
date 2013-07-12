@@ -22,7 +22,7 @@ brwInfo = {
 	"brwDate":str(int(time.time()))
 }
 
-Targets = {}
+Targets = []
 
 a = ArchiveData(brwInfo,t,h,p,Targets)
 a.start()

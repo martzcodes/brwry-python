@@ -84,48 +84,48 @@ $(function () {
                     };
                 });
                 var deviceactive = "";
-                var deviceonoff = "off";
+                var devonoff = "off";
                 var removetarget = "";
                 $.each(data.heat, function(key, val) {
                     deviceactive = "";
                     deviceonoff = "off";
                     removetarget = "";
                     if (val == 1) {
-                        deviceonoff = "on";
+                        devonoff = "on";
                     };
                     $.each(data.targets, function(tkey, tval) {
-                        if (key == tkey) {
-                            deviceonoff = tval;
+                        if (key == tval['device']) {
+                            devonoff = tval['target'];
                             deviceactive = " btn-warning";
                             removetarget = '<li class="divider"></li><li><a class="deviceremove" value="'+key+'" href="#">Remove Target</a></li>';
                         };
                     });
                     if (val >= 1) {
-                        deviceactive = " btn-important";
+                        deviceactive = " btn-danger";
                     };
 
-                    temps.push('<div class="btn-group span1"><button class="btn btn-block dropdown-toggle' + deviceactive + '" title="' + key + '" data-toggle="dropdown">' + deviceonoff + ' <span class="caret"></button><ul class="dropdown-menu"><li>'+key+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+key+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+key+'" href="#">On</a></li>'+removetarget+'</ul></div>');
+                    temps.push('<div class="btn-group span1"><button class="btn btn-block dropdown-toggle' + deviceactive + '" title="' + key + '" data-toggle="dropdown">' + devonoff + ' <span class="caret"></button><ul class="dropdown-menu"><li>'+key+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+key+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+key+'" href="#">On</a></li>'+removetarget+'</ul></div>');
                 });
 
                 $.each(data.pump, function(key, val) {
                     deviceactive = "";
-                    deviceonoff = "off";
+                    devonoff = "off";
                     removetarget = "";
                     if (val == 1) {
-                        deviceonoff = "on";
+                        devonoff = "on";
                     };
                     $.each(data.targets, function(tkey, tval) {
-                        if (key == tkey) {
-                            deviceonoff = tval;
+                        if (key == tval['device']) {
+                            devonoff = tval['target'];
                             deviceactive = " btn-warning";
                             removetarget = '<li class="divider"></li><li><a class="deviceremove" value="'+key+'" href="#">Remove Target</a></li>';
                         };
                     });
                     if (val >= 1) {
-                        deviceactive = " btn-important";
+                        deviceactive = " btn-primary";
                     };
 
-                    temps.push('<div class="btn-group span1"><button class="btn btn-block dropdown-toggle' + deviceactive + '" title="' + key + '" data-toggle="dropdown">' + deviceonoff + ' <span class="caret"></button><ul class="dropdown-menu"><li>'+key+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+key+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+key+'" href="#">On</a></li>'+removetarget+'</ul></div>');
+                    temps.push('<div class="btn-group span1"><button class="btn btn-block dropdown-toggle' + deviceactive + '" title="' + key + '" data-toggle="dropdown">' + devonoff + ' <span class="caret"></button><ul class="dropdown-menu"><li>'+key+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+key+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+key+'" href="#">On</a></li>'+removetarget+'</ul></div>');
                 });
                  
                 $('#live_temps').html(temps.join(''));
