@@ -5,10 +5,12 @@ from archive import ArchiveData
 from pidcontrol import PIDControl
 import json
 import time
+import os
+os.chdir("/home/pi/brwry/")
 
 config = json.loads(open('config.dat').read())
 
-t = LiveTemp()
+t = LiveTemp(config)
 t.start()
 
 h = Device(config['heats'])
@@ -18,30 +20,31 @@ p.allOff()
 v = Device(config['valves'])
 v.allOff()
 
-#temporary brwInfo
-brwInfo = {
-	"brwName":"Test Brew",
-	"brwr":"Matt",
-	"brwDate":str(int(time.time()))
-}
-
-Targets = []
-
-a = ArchiveData(brwInfo,t,h,p,v,Targets,config['storage'])
+a = ArchiveData(config,t,h,p,v)
 a.start()
 
-c = PIDControl(t,h,p)
+c = PIDControl(config,t,h,p)
 c.start()
 
 app = Flask(__name__)
+
+if config['archiving'] == "True":
+	a.resume()
+
+def updateConfig():
+	with open('config.dat','w') as outfile:
+		json.dump(config,outfile)
+	t.updateConfig(config)
+	a.updateConfig(config)
+	c.updateConfig(config)
 
 
 @app.route('/_allOff')
 def allOff():
 	h.allOff()
 	p.allOff()
-	for ind, target in enumerate(Targets):
-		Targets.pop(ind)
+	for ind, target in enumerate(config['targets']):
+		config['targets'].pop(ind)
 	print "All Off"
 
 @app.route('/')
@@ -54,11 +57,15 @@ def brwry_about():
 
 @app.route('/_liveTempRequest')
 def liveTempRequest():
-	return jsonify(result=t.getCurTemp(),heat=h.getCurStatus(),pump=p.getCurStatus(),valve=v.getCurStatus(),targets=Targets)
+	return jsonify(result=t.getCurTemp(),heat=h.getCurStatus(),pump=p.getCurStatus(),valve=v.getCurStatus(),targets=config['targets'])
 
 @app.route('/_configRequest')
 def configRequest():
 	return jsonify(heat=config['heats'],pump=config['pumps'],sensor=config['sensors'],valve=config['valves'])
+
+@app.route('/_existingBrw')
+def existingBrw():
+	return jsonify(brwName=config['brwInfo']['brwName'],brwr=config['brwInfo']['brwr'],brwDate=config['brwInfo']['brwDate'],paused=config['paused'])
 
 @app.route('/configure')
 def brwry_config():
@@ -70,14 +77,17 @@ def removeTarget():
 
 @app.route('/_startBrw', methods=['POST'])
 def startBrw():
-	brwInfo = {
+	config['brwInfo'] = {
 		"brwName":request.json['brwName'],
 		"brwr":request.json['brwr'],
 		"brwDate":str(int(time.time()))
 	}
-	a.brwChange(brwInfo)
+	config['archiving']="True"
+	config['paused']
+	updateConfig()
+	a.brwChange(config['brwInfo'])
 	a.resume()
-	return jsonify(result=brwInfo)
+	return jsonify(result=config['brwInfo'])
 
 @app.route('/_deviceOnOff', methods=['POST'])
 def deviceOnOff():
@@ -105,42 +115,53 @@ def deviceOnOff():
 				v.deviceOn(valve['gpioPIN'])
 			else:
 				v.deviceOff(valve['gpioPIN'])
-	
 	return "Success"
  
 @app.route('/_addTarget', methods=['POST'])
 def addTarget():
-	for ind, target in enumerate(Targets):
+	for ind, target in enumerate(config['targets']):
 		if target['device'] == request.json['device']:
-			Targets.pop(ind)
+			config['targets'].pop(ind)
 	targetWrite = {
 		"device":request.json['device'],
 		"sensor":request.json['sensor'],
 		"target":request.json['target']
 	}
-	Targets.append(targetWrite)
-	c.updateTargets(Targets)
+	config['targets'].append(targetWrite)
+	c.updateTargets(config['targets'])
 	return "Success"
  
 @app.route('/_pauseBrw')
 def pauseBrw():
 	a.pause()
-	print "paused"
+	config['paused']="True"
+	updateConfig()
+	return "Success"
  
 @app.route('/_endBrw')
 def endBrw():
-	a.pause()
 	h.allOff()
 	p.allOff()
 	v.allOff()
-	Targets = []
-	c.updateTargets(Targets)
-	print "brew ended"
+	a.pause()
+	config['brwInfo'] = {
+		"brwName":"",
+		"brwr":"",
+		"brwDate":""
+	}
+	config['archiving']="False"
+	config['paused']="True"
+	config['targets'] = []
+	c.updateTargets(config['targets'])
+	return "Success"
  
 @app.route('/_resumeBrw')
 def resumeBrw():
+	config['paused']="False"
+	configUpdate()
 	a.resume()
+	return "Success"
 
 
 if __name__ == '__main__':
-	app.run(host='0.0.0.0',port=8080)
+	app.run(host='0.0.0.0',port=80,debug=True)

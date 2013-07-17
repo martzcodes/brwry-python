@@ -4,17 +4,17 @@ import json
 
  
 class ArchiveData(threading.Thread):
-	def __init__(self, brwInfo,t,h,p,v,Targets,storage):
+	def __init__(self, config,t,h,p,v):
 		threading.Thread.__init__(self)
 		self.tempDir = '/sys/bus/w1/devices/'
-		self.brwInfo = brwInfo
-		self.brwDir = storage
-		self.brwFile = str(brwInfo['brwDate'])+'-'+brwInfo['brwr']+'-'+brwInfo['brwName']+'.brw'
+		self.brwInfo = config['brwInfo']
+		self.brwDir = config['storage']
+		self.brwFile = str(self.brwInfo['brwDate'])+'-'+self.brwInfo['brwr']+'-'+self.brwInfo['brwName']+'.brw'
 		self.t = t
 		self.h = h
 		self.p = p
 		self.v = v
-		self.Targets = Targets
+		self.targets = config['targets']
 		self._stop = threading.Event()
 		self.oldtime = 0
 		self._pause = True
@@ -41,8 +41,13 @@ class ArchiveData(threading.Thread):
 			time.sleep(1)
 			self._pause = False
 
-	def updateTargets(self,Targets):
-		self.Targets = Targets
+	def updateConfig(self,config):
+		self.brwInfo = config['brwInfo']
+		self.brwDir = config['storage']
+		self.targets = config['targets']
+
+	def updateTargets(self,targets):
+		self.targets = targets
 
 	def setInterval(self,interval):
 		self.interval = interval
@@ -61,7 +66,6 @@ class ArchiveData(threading.Thread):
 			if not self.paused():
 				newtime = time.time()
 				if newtime >= self.interval+self.oldtime:
-					print "In archive"
 					self.oldtime = newtime
 					try:
 						brwData = json.loads(open(self.brwDir+self.brwFile).read())
@@ -91,11 +95,10 @@ class ArchiveData(threading.Thread):
 							archiveDataWrite[valve]=curValves[valve]
 
 						archiveDataWrite["targets"]=[]
-						for target in self.Targets:
+						for target in self.targets:
 							archiveDataWrite["targets"].append(target)
 		 
 						brwData['archive'].append(archiveDataWrite)
-						print brwData
 		 
 						with open(self.brwDir+self.brwFile,'w') as outfile:
 							json.dump(brwData,outfile)

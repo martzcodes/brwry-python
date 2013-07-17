@@ -2,11 +2,9 @@ import threading
 import time
 import json
 
-config = json.loads(open('config.dat').read())
-
 class PIDControl(threading.Thread):
 
-	def __init__(self,t,h,p):
+	def __init__(self,config,t,h,p):
 		threading.Thread.__init__(self)
 		self.tempDir = '/sys/bus/w1/devices/'
 		self._stop = threading.Event()
@@ -14,9 +12,10 @@ class PIDControl(threading.Thread):
 		self.t = t
 		self.h = h
 		self.p = p
+		self.config = config
 		self.curTemp = {}
 		self.dT = 1 #degree F
-		self.Targets = []
+		self.targets = config['targets']
 		self.interval = 10
 		self.oldtime = 0
 		self.liveDataLength = 100
@@ -40,8 +39,11 @@ class PIDControl(threading.Thread):
 	def paused(self):
 		return self._pause
 
-	def updateTargets(self,Targets):
-		self.Targets = Targets
+	def updateConfig(self,config):
+		self.config = config
+
+	def updateTargets(self,targets):
+		self.targets = targets
 		self._pause = False
 
 	def run(self):
@@ -51,12 +53,12 @@ class PIDControl(threading.Thread):
 				if newtime >= self.interval+self.oldtime:
 					self.oldtime = newtime
 					
-					if len(self.Targets) == 0:
+					if len(self.targets) == 0:
 						self._pause = True
 					else:
 						self.curTemp = self.t.getCurTemp()
-						for target in self.Targets:
-							for heat in config['heats']:
+						for target in self.targets:
+							for heat in self.config['heats']:
 								if heat['deviceName'] == target['device']:
 									testval = float(target['target'])+float(self.dT)
 									if self.curTemp[target['sensor']] >= testval:
@@ -66,7 +68,7 @@ class PIDControl(threading.Thread):
 										#Turn Element On
 										self.h.deviceOn(heat['gpioPIN'])
 
-							for pump in config['pumps']:
+							for pump in self.config['pumps']:
 								if pump['deviceName'] == target['device']:
 									if self.curTemp[target['sensor']] >= float(target['target']):
 										#Turn Pump On

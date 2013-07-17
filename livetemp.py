@@ -2,10 +2,8 @@ import threading
 import time
 import json
 
-config = json.loads(open('config.dat').read())
-
 class LiveTemp(threading.Thread):
-	def __init__(self):
+	def __init__(self,config):
 		threading.Thread.__init__(self)
 		self.tempDir = '/sys/bus/w1/devices/'
 		self._stop = threading.Event()
@@ -13,11 +11,14 @@ class LiveTemp(threading.Thread):
 		self.curTemp = {}
 		self.interval = 3
 		self.oldtime = 0
+		self.config = config
 		self.liveDataLength = 100
 
 	def stop(self):
 		self._stop.set()
-		print "STOP SET"
+
+	def updateConfig(self,config):
+		self.config = config
 
 	def setInterval(self,TD):
 		self.interval = TD
@@ -47,7 +48,7 @@ class LiveTemp(threading.Thread):
 				if newtime >= self.interval+self.oldtime:
 					self.oldtime = newtime
 					liveDataWrite = {"timestamp":time.time()}
-					for sensor in config['sensors']:
+					for sensor in self.config['sensors']:
 						try:
 							f = open(self.tempDir + sensor['sensorAddress'] + "/w1_slave", 'r')
 						except IOError as e:
@@ -71,7 +72,7 @@ class LiveTemp(threading.Thread):
 						liveDataWrite[str(sensor['sensorName'])] = temp
 
 					try:
-						liveData = json.loads(open(config['storage']+'live.dat').read())
+						liveData = json.loads(open(self.config['storage']+'live.dat').read())
 					except:
 						liveData = []
 
@@ -83,5 +84,5 @@ class LiveTemp(threading.Thread):
 					liveData.append(liveDataWrite)
 					self.curTemp = liveDataWrite
 
-					with open(config['storage']+'live.dat','w') as outfile:
+					with open(self.config['storage']+'live.dat','w') as outfile:
 						json.dump(liveData,outfile)

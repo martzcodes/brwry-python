@@ -53,7 +53,38 @@ $(function () {
 		$("#endbtn").hide();
 		$("#pausebtn").hide();
 		$("#resumebtn").hide();
-		
+
+        function existingBrw(data) {
+            brwName = data.brwName;
+            brwr = data.brwr;
+            brwDate = data.brwDate;
+            paused = data.paused;
+
+            if (brwName != "") {
+				$("#startbtn").hide();
+				$("#endbtn").show();
+				if (paused == "False") {
+					$("#pausebtn").show();
+					$("#resumebtn").hide();
+				} else {
+					$("#pausebtn").hide();
+					$("#resumebtn").show();
+				};
+				$("#brwNameIn").hide();
+				$("#brwrIn").hide();
+				$("#brwNameOut").text(brwName);
+	    		$("#brwNameOut").show();
+			    $("#brwrOut").text(brwr);
+			    $("#brwrOut").show();
+			    var myDate = new Date(parseInt(brwDate)*1000);
+			    $("#brwDateOut").text(myDate.toLocaleDateString());
+			    $("#brwDateOut").show();
+            };
+
+        }
+
+        $.getJSON("{{ url_for('existingBrw') }}",existingBrw);
+
 		$("#startbtn").click(function() {
 			brwName=$("#brwNameIn").val();
 			brwr=$("#brwrIn").val();

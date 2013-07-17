@@ -1,25 +1,26 @@
 import RPi.GPIO as io
- 
+
+io.setwarnings(False)
 io.setmode(io.BCM)
  
 class Device:
     def __init__(self,devices):
         self.devices = devices
         for device in devices:
-            io.setup(device['gpioPIN'],io.OUT)
-            io.output(device['gpioPIN'],False)
+            io.setup(int(device['gpioPIN']),io.OUT)
+            io.output(int(device['gpioPIN']),False)
  
     def deviceOn(self,pin):
         for device in self.devices:
             if device['gpioPIN'] == pin:
-                io.output(pin,True)
+                io.output(int(pin),True)
             else:
                 print "Does Not Match Existing Device"
  
     def deviceOff(self,pin):
         for device in self.devices:
             if device['gpioPIN'] == pin:
-                io.output(pin,False)
+                io.output(int(pin),False)
             else:
                 print "Does Not Match Existing Device"
 
@@ -35,8 +36,8 @@ class Device:
  
     def deviceStatus(self,pin):
         #note: checking the input of an output pin is permitted
-        return io.input(pin)
+        return io.input(int(pin))
  
     def allOff(self):
         for device in self.devices:
-            io.output(device['gpioPIN'],False)
+            io.output(int(device['gpioPIN']),False)
