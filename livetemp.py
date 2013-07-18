@@ -68,21 +68,22 @@ class LiveTemp(threading.Thread):
 
 						if crcLine.find("NO") > -1:
 							temp = ''
+						else:
+							liveDataWrite[str(sensor['sensorName'])] = temp
 
-						liveDataWrite[str(sensor['sensorName'])] = temp
+					if len(liveDataWrite) > 1:
+						try:
+							liveData = json.loads(open(self.config['storage']+'live.dat').read())
+						except:
+							liveData = []
 
-					try:
-						liveData = json.loads(open(self.config['storage']+'live.dat').read())
-					except:
-						liveData = []
+						while len(liveData) > self.liveDataLength:
+							liveData.pop(0)
+						if len(liveData) == self.liveDataLength:
+							liveData.pop(0)
+				
+						liveData.append(liveDataWrite)
+						self.curTemp = liveDataWrite
 
-					while len(liveData) > self.liveDataLength:
-						liveData.pop(0)
-					if len(liveData) == self.liveDataLength:
-						liveData.pop(0)
-			
-					liveData.append(liveDataWrite)
-					self.curTemp = liveDataWrite
-
-					with open(self.config['storage']+'live.dat','w') as outfile:
-						json.dump(liveData,outfile)
+						with open(self.config['storage']+'live.dat','w') as outfile:
+							json.dump(liveData,outfile)

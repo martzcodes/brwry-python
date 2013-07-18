@@ -1,6 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
 
+<link type="text/css" rel="stylesheet" href="{{
+  url_for('static', filename='rickshaw-master/rickshaw.css') }}"></script>
+<script type=text/javascript src="{{
+  url_for('static', filename='rickshaw-master/vendor/d3.v2.js') }}"></script>
+<script type=text/javascript src="{{
+  url_for('static', filename='rickshaw-master/rickshaw.js') }}"></script>
+
 <div class="row">
 	<div class="span8"></div>
 	<div class="span4">
@@ -15,7 +22,7 @@
 
 <div class="row">
 	<div class="span8">
-		<div>Chart Goes Here</div>
+		<div id="chart"></div>
 	</div>
 	<div class="span4">
 		<div class="row">
@@ -136,6 +143,86 @@ $(function () {
 
 			$.get("{{ url_for('resumeBrw') }}");
 		});
+
+				var graph = new Rickshaw.Graph.Ajax( {
+		        element: document.querySelector("#chart"),
+		        height: 300,
+		        renderer: 'scatterplot',
+		        dataURL: "{{ url_for('chartRequest') }}",
+		        onData: function(d) {
+		        	var palette = new Rickshaw.Color.Palette();
+		        	var dataseries = [];
+		        	$.each(d.live, function(key,val) {
+						val['color'] = palette.color();
+						dataseries.push(val);
+					});
+					$.each(d.arch, function(key,val) {
+						val['color'] = palette.color();
+						val['name'] = val['name'].concat('-archive');
+						if (val['type'] == 'sensor') {
+							dataseries.push(val);
+						};
+					});
+		        	return dataseries
+		        },
+		        onComplete: function(transport) {
+		        	var graph = transport.graph;
+		        	var detail = new Rickshaw.Graph.HoverDetail({graph:graph});
+
+		        	var x_axis = new Rickshaw.Graph.Axis.Time( {
+		        		graph: graph,
+		        	} );
+					var y_axis = new Rickshaw.Graph.Axis.Y( {
+					    graph: graph,
+					    orientation: 'left',
+					    tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+					    element: document.getElementById('y_axis'),
+					} );
+		        }
+		    	} );
+
+		function fetchChartData(){
+			//function updateChart(data){
+
+				/*$.each(data.live, function(key,val) {
+					val['color'] = palette.color();
+					dataseries.push(val);
+				});*/
+			
+
+/*
+				var x_axis = new Rickshaw.Graph.Axis.Time( { graph: graph } );
+
+				var y_axis = new Rickshaw.Graph.Axis.Y( {
+				    graph: graph,
+				    orientation: 'left',
+				    tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+				    element: document.getElementById('y_axis'),
+				} );
+*/
+				graph.request();
+				//graph.render();
+				
+
+			//};
+//			$.getJSON("{{ url_for('chartRequest') }}",updateChart);			
+			setTimeout(fetchChartData, 5000);
+		};
+        fetchChartData();
+		/* var datatest = [ { x: 0, y: 40 }, { x: 1, y: 49 }, { x: 2, y: 17 }, { x: 3, y: 42 } ];
+
+		var graph = new Rickshaw.Graph( {
+        element: document.querySelector("#chart"),
+        width: 580,
+        height: 250,
+        series: [ {
+                color: 'steelblue',
+                data: datatest
+        } ] 
+} );
+
+graph.render();
+*/
 	});
 });
 </script>

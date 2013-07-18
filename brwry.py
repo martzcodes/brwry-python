@@ -59,6 +59,62 @@ def brwry_about():
 def liveTempRequest():
 	return jsonify(result=t.getCurTemp(),heat=h.getCurStatus(),pump=p.getCurStatus(),valve=v.getCurStatus(),targets=config['targets'])
 
+@app.route('/_chartRequest')
+def chartRequest():
+	try:
+		liveData = json.loads(open(config['storage']+'live.dat').read())
+	except:
+		liveData = []
+
+	liveOut = {}
+
+	for data in liveData:
+		for key in data:
+			if key != 'timestamp':
+				try:
+					liveOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
+				except:
+					liveOut[key] = {"name":key,"data":[{"x":data['timestamp'],"y":data[key]}]}
+
+	arcOut = {}
+	if config['brwInfo']['brwDate'] != '':
+		brwFile = config['brwInfo']['brwDate']+'-'+config['brwInfo']['brwr']+'-'+config['brwInfo']['brwName']+'.brw'
+		try:
+			archiveData = json.loads(open(config['storage']+brwFile).read())
+		except:
+			archiveData = []
+		for data in archiveData['archive']:
+			for key in data:
+				if key != 'timestamp':
+					for sensor in config['sensors']:
+						if key == sensor['sensorName']:
+							try:
+								arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
+							except:
+								arcOut[key] = {"name":key,"type":"sensor","data":[{"x":data['timestamp'],"y":data[key]}]}
+					for heat in config['heats']:
+						if key == heat['deviceName']:
+							try:
+								arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
+							except:
+								arcOut[key] = {"name":key,"type":"heat","data":[{"x":data['timestamp'],"y":data[key]}]}
+					for pump in config['pumps']:
+						if key == pump['deviceName']:
+							try:
+								arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
+							except:
+								arcOut[key] = {"name":key,"type":"pump","data":[{"x":data['timestamp'],"y":data[key]}]}
+					for valve in config['valves']:
+						if key == valve['deviceName']:
+							try:
+								arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
+							except:
+								arcOut[key] = {"name":key,"type":"valve","data":[{"x":data['timestamp'],"y":data[key]}]}
+
+	return jsonify(live=liveOut,arch=arcOut)
+
+	
+
 @app.route('/_configRequest')
 def configRequest():
 	return jsonify(heat=config['heats'],pump=config['pumps'],sensor=config['sensors'],valve=config['valves'])
@@ -152,6 +208,7 @@ def endBrw():
 	config['archiving']="False"
 	config['paused']="True"
 	config['targets'] = []
+	updateConfig()
 	c.updateTargets(config['targets'])
 	return "Success"
  
