@@ -125,7 +125,11 @@ def existingBrw():
 
 @app.route('/configure')
 def brwry_config():
-	return render_template('configure.html',config=config)
+	return render_template('configure.html')
+
+@app.route('/_fullConfig')
+def fullConfig():
+	return jsonify(config=config)
 
 @app.route('/_removeTarget')
 def removeTarget():

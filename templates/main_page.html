@@ -6,6 +6,8 @@
 <script type=text/javascript src="{{
   url_for('static', filename='rickshaw-master/vendor/d3.v2.js') }}"></script>
 <script type=text/javascript src="{{
+  url_for('static', filename='rickshaw-master/vendor/d3.layout.min.js') }}"></script>
+<script type=text/javascript src="{{
   url_for('static', filename='rickshaw-master/rickshaw.js') }}"></script>
 
 <div class="row">
@@ -38,6 +40,7 @@
 					<p id="brwNameOut"></p>
 					<p id="brwrOut"></p>
 					<p id="brwDateOut"></p>
+					<div id="legend_container"><div id="legend"></div></div>
 				</div>
 				<div class="tab-pane fade" id="notes">
 					<p>Will allow manual entry of notes and viewing of annotations/instructions at some point</p>
@@ -182,47 +185,10 @@ $(function () {
 		    	} );
 
 		function fetchChartData(){
-			//function updateChart(data){
-
-				/*$.each(data.live, function(key,val) {
-					val['color'] = palette.color();
-					dataseries.push(val);
-				});*/
-			
-
-/*
-				var x_axis = new Rickshaw.Graph.Axis.Time( { graph: graph } );
-
-				var y_axis = new Rickshaw.Graph.Axis.Y( {
-				    graph: graph,
-				    orientation: 'left',
-				    tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
-				    element: document.getElementById('y_axis'),
-				} );
-*/
-				graph.request();
-				//graph.render();
-				
-
-			//};
-//			$.getJSON("{{ url_for('chartRequest') }}",updateChart);			
+			graph.request();
 			setTimeout(fetchChartData, 5000);
 		};
         fetchChartData();
-		/* var datatest = [ { x: 0, y: 40 }, { x: 1, y: 49 }, { x: 2, y: 17 }, { x: 3, y: 42 } ];
-
-		var graph = new Rickshaw.Graph( {
-        element: document.querySelector("#chart"),
-        width: 580,
-        height: 250,
-        series: [ {
-                color: 'steelblue',
-                data: datatest
-        } ] 
-} );
-
-graph.render();
-*/
 	});
 });
 </script>

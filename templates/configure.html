@@ -5,7 +5,52 @@
     <h1>BRWRY Configuration...</h1>
     
     <p>...what equipment do you have?</p>
-    
-    <p>&nbsp;</p>
+
+    <div id="testdata"></div>
+
+    <div class="row"><h3>Temperature Sensors</h3><div id="equip-sensors"></div></div>
+    <div class="row"><h3>Heating Elements</h3><div id="equip-heats"></div></div>
+    <div class="row"><h3>Pumps</h3><div id="equip-pumps"></div></div>
+    <div class="row"><h3>Electric Valves</h3><div id="equip-valves"></div></div>
+    <div class ="row"><h3>Misc Settings</h3><div id="equip-settings"></div></div>
+
+<script type="text/javascript">
+$(function () {
+	$(document).ready(function(){
+		function fullConfig(data) {
+			$("#testdata").text(JSON.stringify(data.config));
+			var outputConf = [];
+
+			outputConf = [];
+			$.each(data.config.sensors, function(key,val) {
+				outputConf.push("<p>"+JSON.stringify(val)+"</p>");
+			});
+			$("#equip-sensors").html(outputConf.join(''));
+
+			outputConf = [];
+			$.each(data.config.heats, function(key,val) {
+				outputConf.push("<p>"+JSON.stringify(val)+"</p>");
+			});
+			$("#equip-heats").html(outputConf.join(''));
+
+			outputConf = [];
+			$.each(data.config.pumps, function(key,val) {
+				outputConf.push("<p>"+JSON.stringify(val)+"</p>");
+			});
+			$("#equip-pumps").html(outputConf.join(''));
+
+			outputConf = [];
+			$.each(data.config.valves, function(key,val) {
+				outputConf.push("<p>"+JSON.stringify(val)+"</p>");
+			});
+			$("#equip-valves").html(outputConf.join(''));
+
+			$("#equip-settings").html("<p>"+data.config.storage+"</p>");
+        };
+
+        $.getJSON("{{ url_for('fullConfig') }}",fullConfig);
+	});
+});
+</script>
 
 {% endblock %}
