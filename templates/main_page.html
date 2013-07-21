@@ -150,6 +150,7 @@ $(function () {
 				var graph = new Rickshaw.Graph.Ajax( {
 		        element: document.querySelector("#chart"),
 		        height: 300,
+		        max: 215,
 		        renderer: 'scatterplot',
 		        dataURL: "{{ url_for('chartRequest') }}",
 		        onData: function(d) {
@@ -176,10 +177,7 @@ $(function () {
 		        		graph: graph,
 		        	} );
 					var y_axis = new Rickshaw.Graph.Axis.Y( {
-					    graph: graph,
-					    orientation: 'left',
-					    tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
-					    element: document.getElementById('y_axis'),
+					    graph: graph
 					} );
 		        }
 		    	} );
