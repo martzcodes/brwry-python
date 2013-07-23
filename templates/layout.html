@@ -8,6 +8,8 @@
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}">
     <script type=text/javascript src="{{
   url_for('static', filename='jquery-1.10.2.min.js') }}"></script>
+    <script type=text/javascript src="{{
+  url_for('static', filename='jquery-ui.min.js') }}"></script>
   <script type=text/javascript src="{{
   url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
     <script type=text/javascript>
@@ -20,7 +22,7 @@
         <div class="container">
             <a class="brand" href="/">BRWRY</a>
             <ul class="nav">
-            	<div class="span2"><button id="live_time" class="btn btn-block btn-inverse"></button></div>
+            	<div class="span2"><a id="live_time" class="btn btn-block btn-inverse"></a></div>
                 <li><a href="{{ url_for('brwry_main') }}" class="">Home</a></li>
                 <li><a href="{{ url_for('brwry_about') }}" class="">About</a></li>
                 <li><a href="{{ url_for('brwry_config') }}" class="">Configure</a></li>
@@ -46,7 +48,7 @@
     <div class="row">
         <div class="span1"><input id="target_temp" type="text" class="input-small" placeholder="Target"></div>
         <div id="live_temps" class="span8"></div>
-        <div class="span2"><button id="EMER_OFF" class="btn btn-block btn-danger" type="button">EMERGENCY OFF</button></div>
+        <div class="span2"><a id="EMER_OFF" class="btn btn-block btn-danger" type="a">EMERGENCY OFF</a></div>
     </div>
 
 <script type="text/javascript">
@@ -105,14 +107,14 @@ $(function () {
                         };
                     });
                 });
-                temps.push('<div class="btn-group span1"><button class="btn btn-block dropdown-toggle" title="' + sensor['sensorName'] + '" data-toggle="dropdown"><span id="'+sensID+'"></span><span class="caret"></button><ul class="dropdown-menu"><li>'+sensor['sensorName']+'</li><li class="divider"></li>'+heatpump.join('')+'</ul></div></div>');
+                temps.push('<div class="btn-group span1"><a class="btn btn-block dropdown-toggle" title="' + sensor['sensorName'] + '" data-toggle="dropdown"><span id="'+sensID+'"></span><span class="caret"></a><ul class="dropdown-menu"><li>'+sensor['sensorName']+'</li><li class="divider"></li>'+heatpump.join('')+'</ul></div></div>');
             });
             
             $.each(config_heats, function(key,device) {
                 heatID="heatID-"+device['deviceName'].replace(' ','');
                 heatList.push(heatID);
 
-                temps.push('<div class="btn-group span1"><button id="'+heatID+'" class="btn btn-block dropdown-toggle" title="' + device['deviceName'] + '" data-toggle="dropdown"><span class="caret"></button><ul class="dropdown-menu"><li>'+device['deviceName']+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+device['deviceName']+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+device['deviceName']+'" href="#">On</a></li></ul></div>');
+                temps.push('<div class="btn-group span1"><a id="'+heatID+'" class="btn btn-block dropdown-toggle" title="' + device['deviceName'] + '" data-toggle="dropdown"><span class="caret"></a><ul class="dropdown-menu"><li>'+device['deviceName']+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+device['deviceName']+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+device['deviceName']+'" href="#">On</a></li></ul></div>');
             });
 
             
@@ -120,14 +122,14 @@ $(function () {
                 pumpID="pumpID-"+device['deviceName'].replace(' ','');
                 pumpList.push(pumpID);
 
-                temps.push('<div class="btn-group span1"><button id="'+pumpID+'" class="btn btn-block dropdown-toggle" title="' + device['deviceName'] + '" data-toggle="dropdown"><span class="caret"></button><ul class="dropdown-menu"><li>'+device['deviceName']+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+device['deviceName']+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+device['deviceName']+'" href="#">On</a></li></ul></div>');
+                temps.push('<div class="btn-group span1"><a id="'+pumpID+'" class="btn btn-block dropdown-toggle" title="' + device['deviceName'] + '" data-toggle="dropdown"><span class="caret"></a><ul class="dropdown-menu"><li>'+device['deviceName']+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+device['deviceName']+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+device['deviceName']+'" href="#">On</a></li></ul></div>');
             });
 
             $.each(config_valves, function(key,device) {
                 valveID="valveID-"+device['deviceName'].replace(' ','');
                 valveList.push(valveID);
 
-                temps.push('<div class="btn-group span1"><button id="'+valveID+'" class="btn btn-block dropdown-toggle" title="' + device['deviceName'] + '" data-toggle="dropdown"><span class="caret"></button><ul class="dropdown-menu"><li>'+device['deviceName']+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+device['deviceName']+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+device['deviceName']+'" href="#">On</a></li></ul></div>');
+                temps.push('<div class="btn-group span1"><a id="'+valveID+'" class="btn btn-block dropdown-toggle" title="' + device['deviceName'] + '" data-toggle="dropdown"><span class="caret"></a><ul class="dropdown-menu"><li>'+device['deviceName']+'</li><li class="divider"></li><li><a class="deviceonoff" command="OFF" value="'+device['deviceName']+'" href="#">Off</a></li><li><a class="deviceonoff" command="ON" value="'+device['deviceName']+'" href="#">On</a></li></ul></div>');
             });
 
             $('#live_temps').html(temps.join(''));

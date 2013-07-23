@@ -3,15 +3,27 @@
 
 <link type="text/css" rel="stylesheet" href="{{
   url_for('static', filename='rickshaw-master/rickshaw.css') }}"></script>
+<link type="text/css" rel="stylesheet" href="{{
+  url_for('static', filename='jquery-ui.css') }}"></script>
 <script type=text/javascript src="{{
   url_for('static', filename='rickshaw-master/vendor/d3.v2.js') }}"></script>
 <script type=text/javascript src="{{
   url_for('static', filename='rickshaw-master/vendor/d3.layout.min.js') }}"></script>
 <script type=text/javascript src="{{
   url_for('static', filename='rickshaw-master/rickshaw.js') }}"></script>
+<script type=text/javascript src="{{
+  url_for('static', filename='rickshaw-master/src/js/Rickshaw.Graph.RangeSlider.js') }}"></script>
+<script type=text/javascript src="{{
+  url_for('static', filename='rickshaw-master/src/js/Rickshaw.Graph.Annotate.js') }}"></script>
 
 <div class="row">
-	<div class="span8"></div>
+	<div class="span8">
+		<div id="chart_container">
+			<div id="chart" class="span8"></div>
+			<div id="timeline" class="span8"></div>
+			<div id="slider" class="span8"></div>
+		</div>
+	</div>
 	<div class="span4">
 		<div class="row">
 			<div class="span1"><button id="startbtn" class="btn btn-block btn-success">Start</button></div>
@@ -19,14 +31,6 @@
 			<div class="span1"><button id="pausebtn" class="btn btn-block btn-warning">Pause</button></div>
 			<div class="span1"><button id="endbtn" class="btn btn-block btn-danger">End</button></div>
 		</div>
-	</div>
-</div>
-
-<div class="row">
-	<div class="span8">
-		<div id="chart"></div>
-	</div>
-	<div class="span4">
 		<div class="row">
 			<ul id="mainTab" class="nav nav-tabs">
 				<li class="active"><a href="#brw" data-toggle="tab">BRW</a></li>
@@ -149,7 +153,8 @@ $(function () {
 
 				var graph = new Rickshaw.Graph.Ajax( {
 		        element: document.querySelector("#chart"),
-		        height: 300,
+		        height: 400,
+		        width: 575,
 		        max: 215,
 		        renderer: 'scatterplot',
 		        dataURL: "{{ url_for('chartRequest') }}",
@@ -175,10 +180,21 @@ $(function () {
 
 		        	var x_axis = new Rickshaw.Graph.Axis.Time( {
 		        		graph: graph,
+		        		ticksTreatment: 'glow'
 		        	} );
 					var y_axis = new Rickshaw.Graph.Axis.Y( {
-					    graph: graph
+					    graph: graph,
+					    ticksTreatment: 'glow'
 					} );
+					var slider = new Rickshaw.Graph.RangeSlider( {
+						graph: graph,
+						element: $('#slider')
+					} );
+					/*var annotator = new Rickshaw.Graph.Annotate( {
+						graph: graph,
+						element: $('#timeline')
+					} ); */
+
 		        }
 		    	} );
 

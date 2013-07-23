@@ -36,6 +36,9 @@ def updateConfig():
 		json.dump(config,outfile)
 	t.updateConfig(config)
 	a.updateConfig(config)
+	h.updateDevices(config['heats'])
+	p.updateDevices(config['pumps'])
+	v.updateDevices(config['valves'])
 	c.updateConfig(config)
 
 
@@ -129,7 +132,11 @@ def brwry_config():
 
 @app.route('/_fullConfig')
 def fullConfig():
-	return jsonify(config=config)
+	availSensors = os.listdir('/sys/bus/w1/devices')
+	for ind, f in enumerate(availSensors):
+		if f == 'w1_bus_master1':
+			availSensors.pop(ind)
+	return jsonify(config=config,availSensors=availSensors)
 
 @app.route('/_removeTarget')
 def removeTarget():
@@ -190,6 +197,107 @@ def addTarget():
 	config['targets'].append(targetWrite)
 	c.updateTargets(config['targets'])
 	return "Success"
+
+@app.route('/_postConfig', methods=['POST'])
+def postConfig():
+	if request.json['btnType'] == "add":
+		if request.json['updateData']['what'].find('Sensor') > -1:
+			config['sensors'].append({"sensorName":request.json['updateData']['sensorName'],
+				"sensorAddress":request.json['updateData']['sensorAddress'],
+				"correctionFactor":float(request.json['updateData']['correctionFactor'])})
+		elif request.json['updateData']['what'].find('Heat') > -1:
+			config['heats'].append({"deviceName":request.json['updateData']['deviceName'],
+				"gpioPIN":int(request.json['updateData']['gpioPIN']),
+				"sensors":request.json['updateData']['sensors']})
+			for ind, avail in enumerate(config['available']):
+				if avail == int(request.json['updateData']['gpioPIN']):
+					config['gpioPINs']['available'].pop(ind)
+				config['gpioPINs']['unavailable'].append(int(request.json['updateData']['gpioPIN']))
+		elif request.json['updateData']['what'].find('Pump') > -1:
+			config['pumps'].append({"deviceName":request.json['updateData']['deviceName'],
+				"gpioPIN":int(request.json['updateData']['gpioPIN']),
+				"sensors":request.json['updateData']['sensors']})
+			for ind, avail in enumerate(config['available']):
+				if avail == int(request.json['updateData']['gpioPIN']):
+					config['gpioPINs']['available'].pop(ind)
+				config['gpioPINs']['unavailable'].append(int(request.json['updateData']['gpioPIN']))
+		elif request.json['updateData']['what'].find('Valve') > -1:
+			config['valves'].append({"deviceName":request.json['updateData']['deviceName'],
+				"gpioPIN":int(request.json['updateData']['gpioPIN'])})
+			for ind, avail in enumerate(config['available']):
+				if avail == int(request.json['updateData']['gpioPIN']):
+					config['gpioPINs']['available'].pop(ind)
+				config['gpioPINs']['unavailable'].append(int(request.json['updateData']['gpioPIN']))
+	else:
+		if request.json['updateData']['what'].find('sens') > -1:
+			for ind, val in enumerate(config['sensors']):
+				if val['sensorName'] == request.json['updateData']['oldName']:
+					for dind, dval in enumerate(config['heats']['sensors']):
+						if dval == request.json['updateData']['oldName']:
+							if request.json['btnType'] == "delete":
+								config['heats']['sensors'].pop(dind)
+							else:
+								config['heats']['sensors'][dind] = request.json['updateData']['sensorName']
+					for dind, dval in enumerate(config['pumps']['sensors']):
+						if dval == request.json['updateData']['oldName']:
+							if request.json['btnType'] == "delete":
+								config['pumps']['sensors'].pop(dind)
+							else:
+								config['pumps']['sensors'][dind] = request.json['updateData']['sensorName']
+					if request.json['btnType'] == "delete":
+						config['sensors'].pop(ind)
+					else:
+						config['sensors'][ind]['sensorName'] = request.json['updateData']['sensorName']
+						config['sensors'][ind]['sensorAddress'] = request.json['updateData']['sensorAddress']
+						config['sensors'][ind]['correctionFactor'] = float(request.json['updateData']['correctionFactor'])
+
+		elif request.json['updateData']['what'].find('heat') > -1:
+			for ind, val in enumerate(config['heats']):
+				if val['deviceName'] == request.json['updateData']['oldName']:
+					if request.json['btnType'] == "delete":
+						h.deviceOff(int(request.json['updateData']['gpioPIN']))
+						config['heats'].pop(ind)
+						for dind, avail in enumerate(config['unavailable']):
+							if avail == int(request.json['updateData']['gpioPIN']):
+								config['gpioPINs']['unavailable'].pop(ind)
+							config['gpioPINs']['available'].append(int(request.json['updateData']['gpioPIN']))
+					else:
+						config['heats'][ind]['deviceName'] = request.json['updateData']['deviceName']
+						config['heats'][ind]['gpioPIN'] = int(request.json['updateData']['gpioPIN'])
+						config['heats'][ind]['sensors'] = request.json['updateData']['sensors']
+
+		elif request.json['updateData']['what'].find('pump') > -1:
+			for ind, val in enumerate(config['pumps']):
+				if val['deviceName'] == request.json['updateData']['oldName']:
+					if request.json['btnType'] == "delete":
+						p.deviceOff(int(request.json['updateData']['gpioPIN']))
+						config['pumps'].pop(ind)
+						for dind, avail in enumerate(config['unavailable']):
+							if avail == int(request.json['updateData']['gpioPIN']):
+								config['gpioPINs']['unavailable'].pop(ind)
+							config['gpioPINs']['available'].append(int(request.json['updateData']['gpioPIN']))
+					else:
+						config['pumps'][ind]['deviceName'] = request.json['updateData']['deviceName']
+						config['pumps'][ind]['gpioPIN'] = int(request.json['updateData']['gpioPIN'])
+						config['pumps'][ind]['sensors'] = request.json['updateData']['sensors']
+
+		elif request.json['updateData']['what'].find('valve') > -1:
+			for ind, val in enumerate(config['valves']):
+				if val['deviceName'] == request.json['updateData']['oldName']:
+					if request.json['btnType'] == "delete":
+						v.deviceOff(int(request.json['updateData']['gpioPIN']))
+						config['valves'].pop(ind)
+						for dind, avail in enumerate(config['unavailable']):
+							if avail == int(request.json['updateData']['gpioPIN']):
+								config['gpioPINs']['unavailable'].pop(ind)
+							config['gpioPINs']['available'].append(int(request.json['updateData']['gpioPIN']))
+					else:
+						config['valves'][ind]['deviceName'] = request.json['updateData']['deviceName']
+						config['valves'][ind]['gpioPIN'] = int(request.json['updateData']['gpioPIN'])
+	
+
+	updateConfig()
+	return render_template('configure.html')
  
 @app.route('/_pauseBrw')
 def pauseBrw():
