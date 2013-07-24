@@ -29,9 +29,9 @@ $(function () {
 				outputConf.push('<div class="span1"><button btn-type="update" btn-target="'+devID+'" old="'+val.deviceName+'" class="btn btn-block" type="button">Update</button></div>');
 				outputConf.push('<div class="span10"><div class="span3 input-prepend"><span class="add-on">Name</span><input class="span2" id="'+devID+'-Name" type="text" value="'+val.deviceName+'"></div>');
 				outputConf.push('<div class="span2"><span>gpioPIN: </span><select class="span1" id="'+devID+'-Pin"><option>'+val.gpioPIN+'</option>');
-				$.each(data.config.gpioPINs.available, function(ind,pin) {
+				/* $.each(data.config.gpioPINs.available, function(ind,pin) {
 					outputConf.push('<option>'+pin+'</option>');
-				});
+				});*/
 				outputConf.push('</select></div>');
 				if (tar) {
 					outputConf.push('<div class="span3"><span>Targeting: </span><select class="span2" multiple="multiple" id="'+devID+'-Target">');
@@ -140,6 +140,14 @@ $(function () {
 			    	updateJSON = JSON.stringify({btnType:btnType,updateData:{what:btnTargetID,oldName:btnOld,sensorName:$('#'+btnTargetID+'-Name').val(),sensorAddress:$('#'+btnTargetID+'-Address').val(),correctionFactor:$('#'+btnTargetID+'-Correction').val()}});
 			    };
 			    if (btnTargetID.indexOf("heatID") > -1 || btnTargetID.indexOf("pumpID") > -1) {
+			    	var outTargets = [];
+			    	if ($('#'+btnTargetID+'-Target').val() == null) {
+			    		outTargets.push("notselected");
+			    	} else {
+			    		$.each($('#'+btnTargetID+'-Target').val(), function(key,val){
+			    			outTargets.push(val);
+			    		});
+			    	};
 			    	updateJSON = JSON.stringify({btnType:btnType,updateData:{what:btnTargetID,oldName:btnOld,deviceName:$('#'+btnTargetID+'-Name').val(),gpioPIN:$('#'+btnTargetID+'-Pin').val(),sensors:$('#'+btnTargetID+'-Target').val()}});
 			    };
 			    if (btnTargetID.indexOf("valveID") > -1){
@@ -155,8 +163,8 @@ $(function () {
 			        },
 			        contentType: "application/json",
 			        dataType: 'json'
-		    	}); 
-				//$("#testdata").text('Debug: '+updateJSON);
+		    	});
+				$("#testdata").text('Debug: '+updateJSON);
 			});
         };
 

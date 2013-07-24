@@ -4,14 +4,13 @@ import json
 
 class PIDControl(threading.Thread):
 
-	def __init__(self,config,t,h,p):
+	def __init__(self,config,t,d):
 		threading.Thread.__init__(self)
 		self.tempDir = '/sys/bus/w1/devices/'
 		self._stop = threading.Event()
 		self._pause = True
 		self.t = t
-		self.h = h
-		self.p = p
+		self.d = d
 		self.config = config
 		self.curTemp = {}
 		self.dT = 1 #degree F
@@ -63,19 +62,19 @@ class PIDControl(threading.Thread):
 									testval = float(target['target'])+float(self.dT)
 									if self.curTemp[target['sensor']] >= testval:
 										#Turn Element Off
-										self.h.deviceOff(heat['gpioPIN'])
+										self.d.deviceOff(heat['gpioPIN'])
 									else:
 										#Turn Element On
-										self.h.deviceOn(heat['gpioPIN'])
+										self.d.deviceOn(heat['gpioPIN'])
 
 							for pump in self.config['pumps']:
 								if pump['deviceName'] == target['device']:
 									if self.curTemp[target['sensor']] >= float(target['target']):
 										#Turn Pump On
-										self.p.deviceOn(pump['gpioPIN'])
+										self.d.deviceOn(pump['gpioPIN'])
 									else:
 										#Turn Pump Off
-										self.p.deviceOff(pump['gpioPIN'])
+										self.d.deviceOff(pump['gpioPIN'])
 
 
 

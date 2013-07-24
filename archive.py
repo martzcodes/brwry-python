@@ -4,16 +4,14 @@ import json
 
  
 class ArchiveData(threading.Thread):
-	def __init__(self, config,t,h,p,v):
+	def __init__(self, config,t,d):
 		threading.Thread.__init__(self)
 		self.tempDir = '/sys/bus/w1/devices/'
 		self.brwInfo = config['brwInfo']
 		self.brwDir = config['storage']
 		self.brwFile = str(self.brwInfo['brwDate'])+'-'+self.brwInfo['brwr']+'-'+self.brwInfo['brwName']+'.brw'
 		self.t = t
-		self.h = h
-		self.p = p
-		self.v = v
+		self.d = d
 		self.targets = config['targets']
 		self._stop = threading.Event()
 		self.oldtime = 0
@@ -82,15 +80,15 @@ class ArchiveData(threading.Thread):
 							if temp != "timestamp":
 								archiveDataWrite[temp]=curTemps[temp]
 
-						curHeats = self.h.getCurStatus()
+						curHeats = self.d.getCurStatus('heats')
 						for heat in curHeats:
 							archiveDataWrite[heat]=curHeats[heat]
 
-						curPumps = self.p.getCurStatus()
+						curPumps = self.d.getCurStatus('pumps')
 						for pump in curPumps:
 							archiveDataWrite[pump]=curPumps[pump]
 
-						curValves = self.v.getCurStatus()
+						curValves = self.d.getCurStatus('valves')
 						for valve in curValves:
 							archiveDataWrite[valve]=curValves[valve]
 
