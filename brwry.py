@@ -133,6 +133,15 @@ def existingBrw():
 def brwry_config():
 	return render_template('configure.html')
 
+@app.route('/_archivedBrews')
+def archivedBrews():
+	storageList = os.listdir(config['storage'])
+	brwList = []
+	for brw in storageList:
+		if brw.find('.brw') > -1:
+			brwList.append(brw)
+	return jsonify(brwList=brwList)
+
 @app.route('/_fullConfig')
 def fullConfig():
 	availSensors = os.listdir('/sys/bus/w1/devices')
@@ -140,11 +149,7 @@ def fullConfig():
 		if f == 'w1_bus_master1':
 			availSensors.pop(ind)
 	return jsonify(config=config,availSensors=availSensors)
-'''
-@app.route('/_removeTarget')
-def removeTarget():
-	return True
-'''
+
 @app.route('/_startBrw', methods=['POST'])
 def startBrw():
 	config['brwInfo'] = {
