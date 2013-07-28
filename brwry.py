@@ -53,6 +53,10 @@ def brwry_main():
 def brwry_about():
 	return render_template('about.html')
 
+@app.route('/archives')
+def brwry_archives():
+	return render_template('archives.html')
+
 @app.route('/_liveTempRequest')
 def liveTempRequest():
 	return jsonify(result=t.getCurTemp(),
@@ -305,6 +309,8 @@ def postConfig():
 					else:
 						config['valves'][ind]['deviceName'] = request.json['updateData']['deviceName']
 						config['valves'][ind]['gpioPIN'] = int(request.json['updateData']['gpioPIN'])
+		elif request.json['updateData']['what'] == 'storage':
+			config['storage'] = request.json['updateData']['storage']
 	config['gpioPINs']['available'] = sorted(config['gpioPINs']['available'])
 	config['gpioPINs']['unavailable'] = sorted(config['gpioPINs']['unavailable'])
 
@@ -337,10 +343,9 @@ def endBrw():
 @app.route('/_resumeBrw')
 def resumeBrw():
 	config['paused']="False"
-	configUpdate()
+	updateConfig()
 	a.resume()
 	return "Success"
-
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0',port=80,debug=True)

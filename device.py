@@ -14,14 +14,14 @@ class Device:
 			io.output(int(device),False)
  
 	def deviceOn(self,pin):
-		for device in self.config['gpioPins']['unavailable']:
+		for device in self.config['gpioPINs']['unavailable']:
 			if int(device) == int(pin):
 				io.output(int(pin),True)
 			else:
 				print "Does Not Match Existing Device"
  
 	def deviceOff(self,pin):
-		for device in self.config['gpioPins']['unavailable']:
+		for device in self.config['gpioPINs']['unavailable']:
 			if int(device) == int(pin):
 				io.output(int(pin),False)
 			else:

@@ -1,0 +1,176 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+    <h1>BRWRY Archives...</h1>
+    
+    <p>...what have you been up to lately?</p>
+
+    <div class="row"><h3>Temperature Sensors</h3><hr class="bs-docs-separator"><div id="equip-sensors"></div></div>
+    <div class="row"><h3>Heating Elements</h3><hr class="bs-docs-separator"><div id="equip-heats"></div></div>
+    <div class="row"><h3>Pumps</h3><hr class="bs-docs-separator"><div id="equip-pumps"></div></div>
+    <div class="row"><h3>Electric Valves</h3><hr class="bs-docs-separator"><div id="equip-valves"></div></div>
+    <div class ="row"><h3>Misc Settings</h3><hr class="bs-docs-separator"><div id="equip-settings"></div>
+    <div class="alert alert-error">Note: It is HIGHLY recommended that you store data on an external location (USB drive attached to Pi or a Network Drive).  Due to limited write cycles on the Pi's OS SD Card you don't want your BRWRY to get corrupted mid-brew.</div></div>
+    <div class="well"><div id="testdata"></div></div>
+
+<script type="text/javascript">
+$(function () {
+    $(document).ready(function(){
+
+        function fullConfig(data) {
+
+            $("#testdata").text('Debug: '+JSON.stringify(data));
+
+            function deviceOutput(val,tar,dev) {
+                devID=dev+val.deviceName.replace(' ','');
+
+                outputConf.push('<div class="row">');
+                outputConf.push('<div class="span1"><button btn-type="update" btn-target="'+devID+'" old="'+val.deviceName+'" class="btn btn-block" type="button">Update</button></div>');
+                outputConf.push('<div class="span10"><div class="span3 input-prepend"><span class="add-on">Name</span><input class="span2" id="'+devID+'-Name" type="text" value="'+val.deviceName+'"></div>');
+                outputConf.push('<div class="span2"><span>gpioPIN: </span><select class="span1" id="'+devID+'-Pin"><option>'+val.gpioPIN+'</option>');
+                /* $.each(data.config.gpioPINs.available, function(ind,pin) {
+                    outputConf.push('<option>'+pin+'</option>');
+                });*/
+                outputConf.push('</select></div>');
+                if (tar) {
+                    outputConf.push('<div class="span3"><span>Targeting: </span><select class="span2" multiple="multiple" id="'+devID+'-Target">');
+                        $.each(data.config.sensors, function(sensorindex,avail) {
+                            isSelected = "";
+                            $.each(val.sensors, function(ind,sens) {
+                                if(avail.sensorName == sens) {
+                                    isSelected = " selected";
+                                };
+                            });
+                            outputConf.push('<option'+isSelected+'>'+avail.sensorName+'</option>');
+                        });
+                        
+                    outputConf.push('</select></div>');
+                };
+                outputConf.push('</div>');
+                outputConf.push('<div class="pull-right"><button btn-type="delete" btn-target="'+devID+'" old="'+val.deviceName+'" class="btn btn-danger" type="button">Delete</button></div>');
+                outputConf.push('</div><hr class="bs-docs-separator">');
+            };
+            function emptyDevice(devID,tar) {
+                outputConf.push('<div class="row">');
+                outputConf.push('<div class="span1"><button btn-type="add" btn-target="'+devID+'" old="" class="btn btn-primary btn-block" type="button">+ Add</button></div>');
+                outputConf.push('<div class="span10"><div class="span3 input-prepend"><span class="add-on">Name</span><input class="span2" id="'+devID+'-Name" type="text" placeholder="New Name"></div>');
+                outputConf.push('<div class="span2"><span>gpioPIN: </span><select class="span1" id="'+devID+'-Pin">');
+                $.each(data.config.gpioPINs.available, function(ind,pin) {
+                    outputConf.push('<option>'+pin+'</option>');
+                });
+                outputConf.push('</select></div>');
+                if (tar) {
+                    outputConf.push('<div class="span3"><span>Targeting: </span><select class="span2" multiple="multiple" id="'+devID+'-Target">');
+                        $.each(data.config.sensors, function(sensorindex,avail) {
+                            outputConf.push('<option>'+avail.sensorName+'</option>');
+                        });
+                        
+                    outputConf.push('</select></div>');
+                };
+                outputConf.push('</div>');
+                outputConf.push('</div><hr class="bs-docs-separator">');
+            };
+
+            var outputConf = [];
+            var availableSensors = [];
+            availableSensors = data.availSensors;
+
+            outputConf = [];
+            $.each(data.config.sensors, function(key,val) {
+                sensID="sensID-"+val.sensorName.replace(' ','');
+                outputConf.push('<div class="row">');
+                outputConf.push('<div class="span1"><button btn-type="update" btn-target="'+sensID+'" old="'+val.sensorName+'" class="btn btn-block" type="button">Update</button></div>');
+                outputConf.push('<div class="span10"><div class="input-prepend span3"><span class="add-on">Name</span><input class="span2" id="'+sensID+'-Name" type="text" value="'+val.sensorName+'"></div>');
+                outputConf.push('<div class="span4"><span>Address: </span><select class="span3" id="'+sensID+'-Address"><option>'+val.sensorAddress+'</option></select></div>');
+                outputConf.push('<div class="input-prepend input-append"><span class="add-on">Correction</span><input class="span1" id="'+sensID+'-Correction" type="text" value="'+val.correctionFactor+'"><span class="add-on">&degF</span></div></div>');
+                outputConf.push('<div class="pull-right"><button btn-type="delete" btn-target="'+sensID+'" old="'+val.sensorName+'" class="btn btn-danger" type="button">Delete</button></div>');
+                outputConf.push('</div><hr class="bs-docs-separator">');
+                availableSensors.pop(val.sensorAddress);
+            });
+            if (availableSensors.length > 0) {
+                sensID="sensID-newSensor";
+                outputConf.push('<div class="row">');
+                outputConf.push('<div class="span1"><button btn-type="add" btn-target="'+sensID+'" old="" class="btn btn-block btn-primary" type="button">+ Add</button></div>');
+                outputConf.push('<div class="span10"><div class="input-prepend span3"><span class="add-on">Name</span><input class="span2" id="'+sensID+'-Name" type="text" placeholder="New Sensor"></div>');              
+                outputConf.push('<div class="span4"><span>Address: </span><select class="span3" id="'+sensID+'-Address">');
+                $.each(availableSensors, function(ind,pin) {
+                    outputConf.push('<option>'+pin+'</option>');
+                });
+                outputConf.push('</select></div>');
+                outputConf.push('<div class="input-prepend input-append"><span class="add-on">Correction</span><input class="span1" id="'+sensID+'-Correction" type="text" placeholder="0"><span class="add-on">&degF</span></div></div>');
+                outputConf.push('</div><hr class="bs-docs-separator">');
+            };
+            
+            $("#equip-sensors").html(outputConf.join(''));
+
+            outputConf = [];
+            $.each(data.config.heats, function(key,val) {
+                deviceOutput(val,true,"heatID");
+            });
+            emptyDevice("heatID-newHeat",true);
+            $("#equip-heats").html(outputConf.join(''));
+
+            outputConf = [];
+            $.each(data.config.pumps, function(key,val) {
+                deviceOutput(val,true,"pumpID");
+            });
+            emptyDevice("pumpID-newPump",true);
+            $("#equip-pumps").html(outputConf.join(''));
+
+            outputConf = [];
+            $.each(data.config.valves, function(key,val) {
+                deviceOutput(val,false,"valveID");
+            });
+            emptyDevice("valveID-newValve",false);
+            $("#equip-valves").html(outputConf.join(''));
+
+            $("#equip-settings").html('<div class="row"><div class="span1"><button btn-type="update" btn-target="storage" old="'+data.config.storage+'" class="btn" type="button">Update</button></div><div class="input-prepend span9"><span class="add-on">Storage</span><input class="span8" id="storage" type="text" value="'+data.config.storage+'"></div></div>');
+
+            $("button").click(function() {
+                var btnType = event.target.getAttribute('btn-type');
+                var btnTargetID = event.target.getAttribute('btn-target');
+                var btnOld = event.target.getAttribute('old');
+
+                var updateJSON = "";
+                if (btnTargetID.indexOf("storage") > -1) {
+                    updateJSON = JSON.stringify({btnType:btnType,updateData:{what:"storage",storage:$('#'+btnTargetID).val()}});
+                };
+                if (btnTargetID.indexOf("sensID") > -1) {
+                    updateJSON = JSON.stringify({btnType:btnType,updateData:{what:btnTargetID,oldName:btnOld,sensorName:$('#'+btnTargetID+'-Name').val(),sensorAddress:$('#'+btnTargetID+'-Address').val(),correctionFactor:$('#'+btnTargetID+'-Correction').val()}});
+                };
+                if (btnTargetID.indexOf("heatID") > -1 || btnTargetID.indexOf("pumpID") > -1) {
+                    var outTargets = [];
+                    if ($('#'+btnTargetID+'-Target').val() == null) {
+                        outTargets.push("notselected");
+                    } else {
+                        $.each($('#'+btnTargetID+'-Target').val(), function(key,val){
+                            outTargets.push(val);
+                        });
+                    };
+                    updateJSON = JSON.stringify({btnType:btnType,updateData:{what:btnTargetID,oldName:btnOld,deviceName:$('#'+btnTargetID+'-Name').val(),gpioPIN:$('#'+btnTargetID+'-Pin').val(),sensors:$('#'+btnTargetID+'-Target').val()}});
+                };
+                if (btnTargetID.indexOf("valveID") > -1){
+                    updateJSON = JSON.stringify({btnType:btnType,updateData:{what:btnTargetID,oldName:btnOld,deviceName:$('#'+btnTargetID+'-Name').val(),gpioPIN:$('#'+btnTargetID+'-Pin').val()}});
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url:"{{ url_for('postConfig') }}",
+                    data: updateJSON,
+                    success: function(data){
+                        //alert here probably
+                    },
+                    contentType: "application/json",
+                    dataType: 'json'
+                });
+                $("#testdata").text('Debug: '+updateJSON);
+            });
+        };
+
+        $.getJSON("{{ url_for('fullConfig') }}",fullConfig);
+    });
+});
+</script>
+
+{% endblock %}

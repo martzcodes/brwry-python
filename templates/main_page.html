@@ -17,20 +17,20 @@
   url_for('static', filename='rickshaw-master/src/js/Rickshaw.Graph.Annotate.js') }}"></script>
 
 <div class="row">
-	<div class="span8">
+	<div class="col-lg-8">
 		<div id="chart_container">
-			<div id="chart" class="span8"></div>
-			<div id="timeline" class="span8"></div>
-			<div id="slider" class="span8"></div>
+			<div class="row">
+				<div id="chart"></div>
+			</div>
+			<div class="row">
+				<div id="timeline" class="col-lg-8"></div>
+			</div>
+			<div class="row">
+				<div id="slider" class="col-lg-8"></div>
+			</div>
 		</div>
 	</div>
-	<div class="span4">
-		<div class="row">
-			<div class="span1"><button id="startbtn" class="btn btn-block btn-success">Start</button></div>
-			<div class="span1"><button id="resumebtn" class="btn btn-block btn-info">Resume</button></div>
-			<div class="span1"><button id="pausebtn" class="btn btn-block btn-warning">Pause</button></div>
-			<div class="span1"><button id="endbtn" class="btn btn-block btn-danger">End</button></div>
-		</div>
+	<div class="col-lg-4">
 		<div class="row">
 			<ul id="mainTab" class="nav nav-tabs">
 				<li class="active"><a href="#brw" data-toggle="tab">BRW</a></li>
@@ -39,8 +39,8 @@
 			</ul>
 			<div id="mainTabContent" class="tab-content">
 				<div class="tab-pane fade in active" id="brw">
-					<input id="brwNameIn" type="text" class="span2" placeholder="Brew Name">
-					<input id="brwrIn" type="text" class="span2" placeholder="Brewer">
+					<input id="brwNameIn" type="text" placeholder="Brew Name">
+					<input id="brwrIn" type="text" placeholder="Brewer">
 					<p id="brwNameOut"></p>
 					<p id="brwrOut"></p>
 					<p id="brwDateOut"></p>
@@ -53,6 +53,10 @@
 					<p>Will show twitter feed at some point</p>
 				</div>
 			</div>
+			<button id="startbtn" class="btn btn-block btn-success">Start</button>
+			<button id="resumebtn" class="btn btn-block btn-info">Resume</button>
+			<button id="pausebtn" class="btn btn-block btn-warning">Pause</button>
+			<button id="endbtn" class="btn btn-block btn-danger">End</button>
 		</div>
 	</div>
 </div>

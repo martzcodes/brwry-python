@@ -26,15 +26,16 @@ $(function () {
 				devID=dev+val.deviceName.replace(' ','');
 
 				outputConf.push('<div class="row">');
-				outputConf.push('<div class="span1"><button btn-type="update" btn-target="'+devID+'" old="'+val.deviceName+'" class="btn btn-block" type="button">Update</button></div>');
-				outputConf.push('<div class="span10"><div class="span3 input-prepend"><span class="add-on">Name</span><input class="span2" id="'+devID+'-Name" type="text" value="'+val.deviceName+'"></div>');
-				outputConf.push('<div class="span2"><span>gpioPIN: </span><select class="span1" id="'+devID+'-Pin"><option>'+val.gpioPIN+'</option>');
+				outputConf.push('<div class="col-lg-1"><button btn-type="update" btn-target="'+devID+'" old="'+val.deviceName+'" class="btn btn-block btn-default" type="button">Update</button></div>');
+				outputConf.push('<div class="col-lg-10"><div class="input-group col-lg-4"><span class="input-group-addon">Name</span><input class="form-control" id="'+devID+'-Name" type="text" value="'+val.deviceName+'"></div>');
+				outputConf.push('<div class="input-group col-lg-3"><span class="input-group-addon">gpioPIN</span><input class="form-control" id="'+devID+'-Pin" type="number" value="'+val.gpioPIN+'"></div>');
+				//outputConf.push('<div class="input-group"><span class="input-group-addon">gpioPIN: </span><select class="col-lg-1" id="'+devID+'-Pin"><option>'+val.gpioPIN+'</option>');
 				/* $.each(data.config.gpioPINs.available, function(ind,pin) {
 					outputConf.push('<option>'+pin+'</option>');
 				});*/
-				outputConf.push('</select></div>');
+				//outputConf.push('</select></div>');
 				if (tar) {
-					outputConf.push('<div class="span3"><span>Targeting: </span><select class="span2" multiple="multiple" id="'+devID+'-Target">');
+					outputConf.push('<div class="col-lg-3"><span>Targeting: </span><select class="form-control" multiple="multiple" id="'+devID+'-Target">');
 						$.each(data.config.sensors, function(sensorindex,avail) {
 							isSelected = "";
 							$.each(val.sensors, function(ind,sens) {
@@ -53,21 +54,24 @@ $(function () {
 			};
 			function emptyDevice(devID,tar) {
 				outputConf.push('<div class="row">');
-				outputConf.push('<div class="span1"><button btn-type="add" btn-target="'+devID+'" old="" class="btn btn-primary btn-block" type="button">+ Add</button></div>');
-				outputConf.push('<div class="span10"><div class="span3 input-prepend"><span class="add-on">Name</span><input class="span2" id="'+devID+'-Name" type="text" placeholder="New Name"></div>');
-				outputConf.push('<div class="span2"><span>gpioPIN: </span><select class="span1" id="'+devID+'-Pin">');
+				outputConf.push('<div class="col-lg-1"><button btn-type="add" btn-target="'+devID+'" old="" class="btn btn-primary btn-block" type="button">+ Add</button></div>');
+				outputConf.push('<div class="col-lg-10"><div class="input-group col-lg-4"><span class="input-group-addon">Name</span><input class="form-control" id="'+devID+'-Name" type="text" value=""></div>');
+				outputConf.push('<div class="input-group col-lg-3"><span class="input-group-addon">gpioPIN</span><input class="form-control" id="'+devID+'-Pin" type="number" value=""></div>');
+
+				/*outputConf.push('<div class="col-lg-10"><div class="col-lg-3 input-prepend"><span class="add-on">Name</span><input class="col-lg-2" id="'+devID+'-Name" type="text" placeholder="New Name"></div>');
+				outputConf.push('<div class="col-lg-2"><span>gpioPIN: </span><select class="col-lg-1" id="'+devID+'-Pin">');
 				$.each(data.config.gpioPINs.available, function(ind,pin) {
 					outputConf.push('<option>'+pin+'</option>');
 				});
-				outputConf.push('</select></div>');
-				if (tar) {
-					outputConf.push('<div class="span3"><span>Targeting: </span><select class="span2" multiple="multiple" id="'+devID+'-Target">');
+				outputConf.push('</select></div>'); */
+/*				if (tar) {
+					outputConf.push('<div class="col-lg-3"><span>Targeting: </span><select class="col-lg-2" multiple="multiple" id="'+devID+'-Target">');
 						$.each(data.config.sensors, function(sensorindex,avail) {
 							outputConf.push('<option>'+avail.sensorName+'</option>');
 						});
 						
 					outputConf.push('</select></div>');
-				};
+				}; */
 				outputConf.push('</div>');
 				outputConf.push('</div><hr class="bs-docs-separator">');
 			};
@@ -80,10 +84,18 @@ $(function () {
 			$.each(data.config.sensors, function(key,val) {
 				sensID="sensID-"+val.sensorName.replace(' ','');
 				outputConf.push('<div class="row">');
-				outputConf.push('<div class="span1"><button btn-type="update" btn-target="'+sensID+'" old="'+val.sensorName+'" class="btn btn-block" type="button">Update</button></div>');
-				outputConf.push('<div class="span10"><div class="input-prepend span3"><span class="add-on">Name</span><input class="span2" id="'+sensID+'-Name" type="text" value="'+val.sensorName+'"></div>');
-				outputConf.push('<div class="span4"><span>Address: </span><select class="span3" id="'+sensID+'-Address"><option>'+val.sensorAddress+'</option></select></div>');
-				outputConf.push('<div class="input-prepend input-append"><span class="add-on">Correction</span><input class="span1" id="'+sensID+'-Correction" type="text" value="'+val.correctionFactor+'"><span class="add-on">&degF</span></div></div>');
+				outputConf.push('<div class="col-lg-1"><button btn-type="update" btn-target="'+sensID+'" old="'+val.sensorName+'" class="btn btn-block btn-default" type="button">Update</button></div>');
+
+				outputConf.push('<div class="col-lg-10"><div class="input-group col-lg-4"><span class="input-group-addon">Name</span><input class="form-control" id="'+sensID+'-Name" type="text" value=""></div>');
+				outputConf.push('<div class="input-group col-lg-4"><span class="input-group-addon">gpioPIN</span><input class="form-control" id="'+sensID+'-Address" type="text" value="'+val.sensorAddress+'"></div>');
+				outputConf.push('<div class="input-group col-lg-3"><span class="input-group-addon">gpioPIN</span><input class="form-control" id="'+sensID+'-Correction" type="number" value="'+val.correctionFactor+'"></div>');
+				outputConf.push('</div>')
+
+
+/*				outputConf.push('<div class="col-lg-10"><div class="input-prepend col-lg-3"><span class="add-on">Name</span><input class="col-lg-2" id="'+sensID+'-Name" type="text" value="'+val.sensorName+'"></div>');
+				outputConf.push('<div class="col-lg-4"><span>Address: </span><select class="col-lg-3" id="'+sensID+'-Address"><option>'+val.sensorAddress+'</option></select></div>');
+				outputConf.push('<div class="input-prepend input-append"><span class="add-on">Correction</span><input class="col-lg-1" id="'+sensID+'-Correction" type="text" value="'+val.correctionFactor+'"><span class="add-on">&degF</span></div></div>');
+				*/
 				outputConf.push('<div class="pull-right"><button btn-type="delete" btn-target="'+sensID+'" old="'+val.sensorName+'" class="btn btn-danger" type="button">Delete</button></div>');
 				outputConf.push('</div><hr class="bs-docs-separator">');
 				availableSensors.pop(val.sensorAddress);
@@ -91,14 +103,20 @@ $(function () {
 			if (availableSensors.length > 0) {
 				sensID="sensID-newSensor";
 				outputConf.push('<div class="row">');
-				outputConf.push('<div class="span1"><button btn-type="add" btn-target="'+sensID+'" old="" class="btn btn-block btn-primary" type="button">+ Add</button></div>');
-				outputConf.push('<div class="span10"><div class="input-prepend span3"><span class="add-on">Name</span><input class="span2" id="'+sensID+'-Name" type="text" placeholder="New Sensor"></div>');				
-				outputConf.push('<div class="span4"><span>Address: </span><select class="span3" id="'+sensID+'-Address">');
+				outputConf.push('<div class="col-lg-1"><button btn-type="add" btn-target="'+sensID+'" old="" class="btn btn-block btn-primary" type="button">+ Add</button></div>');
+
+				outputConf.push('<div class="col-lg-10"><div class="input-group col-lg-4"><span class="input-group-addon">Name</span><input class="form-control" id="'+sensID+'-Name" type="text" value=""></div>');
+				outputConf.push('<div class="input-group col-lg-4"><span class="input-group-addon">gpioPIN</span><input class="form-control" id="'+sensID+'-Address" type="text" value="'+val.sensorAddress+'"></div>');
+				outputConf.push('<div class="input-group col-lg-3"><span class="input-group-addon">gpioPIN</span><input class="form-control" id="'+sensID+'-Correction" type="number" value="'+val.correctionFactor+'"></div>');
+				outputConf.push('</div>')
+				
+/*				outputConf.push('<div class="col-lg-10"><div class="input-prepend col-lg-3"><span class="add-on">Name</span><input class="col-lg-2" id="'+sensID+'-Name" type="text" placeholder="New Sensor"></div>');				
+				outputConf.push('<div class="col-lg-4"><span>Address: </span><select class="col-lg-3" id="'+sensID+'-Address">');
 				$.each(availableSensors, function(ind,pin) {
 					outputConf.push('<option>'+pin+'</option>');
 				});
 				outputConf.push('</select></div>');
-				outputConf.push('<div class="input-prepend input-append"><span class="add-on">Correction</span><input class="span1" id="'+sensID+'-Correction" type="text" placeholder="0"><span class="add-on">&degF</span></div></div>');
+				outputConf.push('<div class="input-prepend input-append"><span class="add-on">Correction</span><input class="col-lg-1" id="'+sensID+'-Correction" type="text" placeholder="0"><span class="add-on">&degF</span></div></div>'); */
 				outputConf.push('</div><hr class="bs-docs-separator">');
 			};
 			
@@ -125,7 +143,7 @@ $(function () {
 			emptyDevice("valveID-newValve",false);
 			$("#equip-valves").html(outputConf.join(''));
 
-			$("#equip-settings").html('<div class="row"><div class="span1"><button btn-type="update" btn-target="storage" old="'+data.config.storage+'" class="btn" type="button">Update</button></div><div class="input-prepend span9"><span class="add-on">Storage</span><input class="span8" id="storage" type="text" value="'+data.config.storage+'"></div></div>');
+			$("#equip-settings").html('<div class="row"><div class="col-lg-1"><button btn-type="update" btn-target="storage" old="'+data.config.storage+'" class="btn" type="button">Update</button></div><div class="input-prepend col-lg-9"><span class="add-on">Storage</span><input class="col-lg-8" id="storage" type="text" value="'+data.config.storage+'"></div></div>');
 
 			$("button").click(function() {
 			    var btnType = event.target.getAttribute('btn-type');
