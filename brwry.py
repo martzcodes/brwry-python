@@ -81,7 +81,6 @@ def chartRequest():
 					liveOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
 				except:
 					liveOut[key] = {"name":key,"data":[{"x":data['timestamp'],"y":data[key]}]}
-
 	arcOut = {}
 	if config['brwInfo']['brwDate'] != '':
 		brwFile = config['brwInfo']['brwDate']+'-'+config['brwInfo']['brwr']+'-'+config['brwInfo']['brwName']+'.brw'
@@ -119,7 +118,41 @@ def chartRequest():
 
 	return jsonify(live=liveOut,arch=arcOut)
 
-	
+@app.route('/_chartArchive', methods=['POST'])
+def chartArchive():
+	arcOut = {}
+	try:
+		archiveData = json.loads(open(config['storage']+request.json['fileName']).read())
+	except:
+		archiveData = []
+	for data in archiveData['archive']:
+		for key in data:
+			if key != 'timestamp':
+				for sensor in config['sensors']:
+					if key == sensor['sensorName']:
+						try:
+							arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
+						except:
+							arcOut[key] = {"name":key,"type":"sensor","data":[{"x":data['timestamp'],"y":data[key]}]}
+				for heat in config['heats']:
+					if key == heat['deviceName']:
+						try:
+							arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
+						except:
+							arcOut[key] = {"name":key,"type":"heat","data":[{"x":data['timestamp'],"y":data[key]}]}
+				for pump in config['pumps']:
+					if key == pump['deviceName']:
+						try:
+							arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
+						except:
+							arcOut[key] = {"name":key,"type":"pump","data":[{"x":data['timestamp'],"y":data[key]}]}
+				for valve in config['valves']:
+					if key == valve['deviceName']:
+						try:
+							arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
+						except:
+							arcOut[key] = {"name":key,"type":"valve","data":[{"x":data['timestamp'],"y":data[key]}]}
+	return jsonify(arch=arcOut)
 
 @app.route('/_configRequest')
 def configRequest():
@@ -353,4 +386,4 @@ def resumeBrw():
 	return "Success"
 
 if __name__ == '__main__':
-	app.run(host='0.0.0.0',port=80,debug=True)
+	app.run(host='0.0.0.0',port=80)

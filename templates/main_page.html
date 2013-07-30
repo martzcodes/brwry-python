@@ -155,52 +155,52 @@ $(function () {
 			$.get("{{ url_for('resumeBrw') }}");
 		});
 
-				var graph = new Rickshaw.Graph.Ajax( {
-		        element: document.querySelector("#chart"),
-		        height: 400,
-		        width: 575,
-		        max: 215,
-		        renderer: 'scatterplot',
-		        dataURL: "{{ url_for('chartRequest') }}",
-		        onData: function(d) {
-		        	var palette = new Rickshaw.Color.Palette();
-		        	var dataseries = [];
-		        	$.each(d.live, function(key,val) {
-						val['color'] = palette.color();
+			var graph = new Rickshaw.Graph.Ajax( {
+	        element: document.querySelector("#chart"),
+	        height: 400,
+	        width: 575,
+	        max: 215,
+	        renderer: 'scatterplot',
+	        dataURL: "{{ url_for('chartRequest') }}",
+	        onData: function(d) {
+	        	var palette = new Rickshaw.Color.Palette();
+	        	var dataseries = [];
+	        	$.each(d.live, function(key,val) {
+					val['color'] = palette.color();
+					dataseries.push(val);
+				});
+				$.each(d.arch, function(key,val) {
+					val['color'] = palette.color();
+					val['name'] = val['name'].concat('-archive');
+					if (val['type'] == 'sensor') {
 						dataseries.push(val);
-					});
-					$.each(d.arch, function(key,val) {
-						val['color'] = palette.color();
-						val['name'] = val['name'].concat('-archive');
-						if (val['type'] == 'sensor') {
-							dataseries.push(val);
-						};
-					});
-		        	return dataseries
-		        },
-		        onComplete: function(transport) {
-		        	var graph = transport.graph;
-		        	var detail = new Rickshaw.Graph.HoverDetail({graph:graph});
+					};
+				});
+	        	return dataseries
+	        },
+	        onComplete: function(transport) {
+	        	var graph = transport.graph;
+	        	var detail = new Rickshaw.Graph.HoverDetail({graph:graph});
 
-		        	var x_axis = new Rickshaw.Graph.Axis.Time( {
-		        		graph: graph,
-		        		ticksTreatment: 'glow'
-		        	} );
-					var y_axis = new Rickshaw.Graph.Axis.Y( {
-					    graph: graph,
-					    ticksTreatment: 'glow'
-					} );
-					var slider = new Rickshaw.Graph.RangeSlider( {
-						graph: graph,
-						element: $('#slider')
-					} );
-					/*var annotator = new Rickshaw.Graph.Annotate( {
-						graph: graph,
-						element: $('#timeline')
-					} ); */
+	        	var x_axis = new Rickshaw.Graph.Axis.Time( {
+	        		graph: graph,
+	        		ticksTreatment: 'glow'
+	        	} );
+				var y_axis = new Rickshaw.Graph.Axis.Y( {
+				    graph: graph,
+				    ticksTreatment: 'glow'
+				} );
+				var slider = new Rickshaw.Graph.RangeSlider( {
+					graph: graph,
+					element: $('#slider')
+				} );
+				/*var annotator = new Rickshaw.Graph.Annotate( {
+					graph: graph,
+					element: $('#timeline')
+				} ); */
 
-		        }
-		    	} );
+		    }
+		});
 
 		function fetchChartData(){
 			graph.request();

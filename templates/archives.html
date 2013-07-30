@@ -2,10 +2,43 @@
 
 {% block content %}
 
+<link type="text/css" rel="stylesheet" href="{{
+  url_for('static', filename='rickshaw-master/rickshaw.css') }}"></script>
+<link type="text/css" rel="stylesheet" href="{{
+  url_for('static', filename='jquery-ui.css') }}"></script>
+<script type=text/javascript src="{{
+  url_for('static', filename='rickshaw-master/vendor/d3.v2.js') }}"></script>
+<script type=text/javascript src="{{
+  url_for('static', filename='rickshaw-master/vendor/d3.layout.min.js') }}"></script>
+<script type=text/javascript src="{{
+  url_for('static', filename='rickshaw-master/rickshaw.js') }}"></script>
+<script type=text/javascript src="{{
+  url_for('static', filename='rickshaw-master/src/js/Rickshaw.Graph.RangeSlider.js') }}"></script>
+<script type=text/javascript src="{{
+  url_for('static', filename='rickshaw-master/src/js/Rickshaw.Graph.Annotate.js') }}"></script>
+
     <h1>BRWRY Archives...</h1>
     
     <p>...what have you been up to lately?</p>
 
+    <div class="row">
+        <div id="chart_container">
+            <div class="row">
+                <div id="chart"></div>
+            </div>
+            <div class="row">
+                <div id="timeline"></div>
+            </div>
+            <div class="row">
+                <div id="slider"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+    <div class="col-lg-2"><button id="viewbtn" class="btn btn-block btn-primary">View</button></div>
+    <div class="col-lg-2"><button id="mergebtn" class="btn btn-block btn-info">Merge</button></div>
+    <div class="col-lg-2"><button id="deletebtn" class="btn btn-block btn-danger">Delete</button></div>
     <table class="table table-striped table-condensed">
         <thead>
             <tr>
@@ -18,20 +51,68 @@
         </thead>
         <tbody id="archiveTable"></tbody>
     </table>
+    </div>
 
 <script type="text/javascript">
 $(function () {
+    var brwList = [];
     $(document).ready(function(){
 
+        $("#selectAll").click(function() {
+            $(':checkbox').prop('checked', this.checked);
+        });
+        $("#viewbtn").click(function() {
+            //$("input:checked")
+            if ($("input:checked").length > 1) {
+                alert("You can only view one at a time");
+            } else if ($("input:checked").length < 1) {
+                alert("You need to select one");
+            } else {
+                $.each(brwList, function(key,val){
+                    if (val.replace('.','') == $("input:checked").val()) {
+                        $.ajax({
+                            type: 'POST',
+                            url:"{{ url_for('chartArchive') }}",
+                            data: JSON.stringify({"fileName":val}),
+                            success: function(data){
+                                var chartData = [];
+                                $.each(data.arch, function(key,val) {
+                                    val['color'] = 'steelblue';
+                                    chartData.push(val);
+                                });
+                                //data.arch['color'] = 'steelblue';
+                                var graph = new Rickshaw.Graph( {
+                                element: document.querySelector("#chart"), 
+                                height: 300, 
+                                max: 215,
+                                series: chartData
+                            });
+                             
+                            graph.render();
+                            },
+                            contentType: "application/json",
+                            dataType: 'json'
+                        });
+                    };
+                });
+            };
+        });
+        $("#mergebtn").click(function() {
+            
+        });
+        $("#deletebtn").click(function() {
+            
+        });
+
         function listArchive(data) {
+            brwList = data.brwList;
             var listOutput = [];
             $.each(data.brwList, function(key,val) {
-                //self.brwInfo['brwDate']+'-'+self.brwInfo['brwr']+'-'+self.brwInfo['brwName']+'.brw'
                 var valSplit = val.split('.');
                 valSplit = valSplit[0].split('-');
                 var myDate = new Date(valSplit[0]*1000);
                 $('#live_time').text();
-                listOutput.push('<tr><td><input type="checkbox" id="'+val.replace('.','')+'"></td><td>'+valSplit[2]+'</td><td>'+valSplit[1]+'</td><td>'+myDate.toLocaleDateString()+'</td><td>'+val+'</td></tr>');
+                listOutput.push('<tr><td><input type="checkbox" value="'+val.replace('.','')+'"></td><td>'+valSplit[2]+'</td><td>'+valSplit[1]+'</td><td>'+myDate.toLocaleDateString()+'</td><td>'+val+'</td></tr>');
             });
             $('#archiveTable').html(listOutput.join(''));
         };
