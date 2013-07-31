@@ -37,7 +37,7 @@
 
     <div class="row">
     <div class="col-lg-2"><button id="viewbtn" class="btn btn-block btn-primary">View</button></div>
-    <div class="col-lg-2"><button id="mergebtn" class="btn btn-block btn-info">Merge</button></div>
+    <div class="col-lg-2"><button id="mergebtn" class="btn btn-block btn-warning">Merge</button></div>
     <div class="col-lg-2"><button id="deletebtn" class="btn btn-block btn-danger">Delete</button></div>
     <table class="table table-striped table-condensed">
         <thead>
@@ -73,12 +73,16 @@ $(function () {
                         $.ajax({
                             type: 'POST',
                             url:"{{ url_for('chartArchive') }}",
-                            data: JSON.stringify({"fileName":val}),
+                            data: JSON.stringify({"fileName":val,"actionType":"view"}),
                             success: function(data){
+                                $('#chart_container').html('<div class="row"><div id="chart"></div></div><div class="row"><div id="timeline"></div></div><div class="row"><div id="slider"></div></div>');
                                 var chartData = [];
+                                var palette = new Rickshaw.Color.Palette();
                                 $.each(data.arch, function(key,val) {
-                                    val['color'] = 'steelblue';
-                                    chartData.push(val);
+                                    val['color'] = palette.color();
+                                    if (val['type'] == 'sensor') {
+                                        chartData.push(val);
+                                    };
                                 });
                                 //data.arch['color'] = 'steelblue';
                                 var graph = new Rickshaw.Graph( {
@@ -87,8 +91,25 @@ $(function () {
                                 max: 215,
                                 series: chartData
                             });
-                             
-                            graph.render();
+                            var detail = new Rickshaw.Graph.HoverDetail({graph:graph});
+
+                            var x_axis = new Rickshaw.Graph.Axis.Time( {
+                                graph: graph,
+                                ticksTreatment: 'glow'
+                            } );
+                            var y_axis = new Rickshaw.Graph.Axis.Y( {
+                                graph: graph,
+                                ticksTreatment: 'glow'
+                            } );
+                            var slider = new Rickshaw.Graph.RangeSlider( {
+                                graph: graph,
+                                element: $('#slider')
+                            } );
+                            /*var annotator = new Rickshaw.Graph.Annotate( {
+                                graph: graph,
+                                element: $('#timeline')
+                            } ); */
+                            graph.request();
                             },
                             contentType: "application/json",
                             dataType: 'json'
@@ -98,10 +119,42 @@ $(function () {
             };
         });
         $("#mergebtn").click(function() {
-            
+            var fileNames = [];
+            if ($("input:checked").length < 2) {
+                alert("You need to select at least two");
+            } else {
+                $.each(brwList, function(key,val){
+                    if (val.replace('.','') == $("input:checked").val()) {
+                        fileNames.push(val);
+                        $.ajax({
+                            type: 'POST',
+                            url:"{{ url_for('chartArchive') }}",
+                            data: JSON.stringify({"fileNames":fileNames,"actionType":"merge"}),
+                            contentType: "application/json",
+                            dataType: 'json'
+                        });
+                    };
+                });
+            };
         });
         $("#deletebtn").click(function() {
-            
+            var fileNames = [];
+            if ($("input:checked").length == 0) {
+                alert("You need to select one");
+            } else {
+                $.each(brwList, function(key,val){
+                    if (val.replace('.','') == $("input:checked").val()) {
+                        fileNames.push(val);
+                    };
+                });
+                $.ajax({
+                    type: 'POST',
+                    url:"{{ url_for('chartArchive') }}",
+                    data: JSON.stringify({"fileNames":fileNames,"actionType":"delete"}),
+                    contentType: "application/json",
+                    dataType: 'json'
+                });
+            };
         });
 
         function listArchive(data) {

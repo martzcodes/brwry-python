@@ -121,37 +121,72 @@ def chartRequest():
 @app.route('/_chartArchive', methods=['POST'])
 def chartArchive():
 	arcOut = {}
-	try:
-		archiveData = json.loads(open(config['storage']+request.json['fileName']).read())
-	except:
-		archiveData = []
-	for data in archiveData['archive']:
-		for key in data:
-			if key != 'timestamp':
-				for sensor in config['sensors']:
-					if key == sensor['sensorName']:
-						try:
-							arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
-						except:
-							arcOut[key] = {"name":key,"type":"sensor","data":[{"x":data['timestamp'],"y":data[key]}]}
-				for heat in config['heats']:
-					if key == heat['deviceName']:
-						try:
-							arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
-						except:
-							arcOut[key] = {"name":key,"type":"heat","data":[{"x":data['timestamp'],"y":data[key]}]}
-				for pump in config['pumps']:
-					if key == pump['deviceName']:
-						try:
-							arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
-						except:
-							arcOut[key] = {"name":key,"type":"pump","data":[{"x":data['timestamp'],"y":data[key]}]}
-				for valve in config['valves']:
-					if key == valve['deviceName']:
-						try:
-							arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
-						except:
-							arcOut[key] = {"name":key,"type":"valve","data":[{"x":data['timestamp'],"y":data[key]}]}
+	print request.json
+	if request.json['actionType'] == "view":
+		try:
+			archiveData = json.loads(open(config['storage']+request.json['fileName']).read())
+		except:
+			archiveData = []
+		print "archiveData: ",archiveData
+		for data in archiveData['archive']:
+			for key in data:
+				if key != 'timestamp':
+					for sensor in config['sensors']:
+						if key == sensor['sensorName']:
+							try:
+								arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
+							except:
+								arcOut[key] = {"name":key,"type":"sensor","data":[{"x":data['timestamp'],"y":data[key]}]}
+					for heat in config['heats']:
+						if key == heat['deviceName']:
+							try:
+								arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
+							except:
+								arcOut[key] = {"name":key,"type":"heat","data":[{"x":data['timestamp'],"y":data[key]}]}
+					for pump in config['pumps']:
+						if key == pump['deviceName']:
+							try:
+								arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
+							except:
+								arcOut[key] = {"name":key,"type":"pump","data":[{"x":data['timestamp'],"y":data[key]}]}
+					for valve in config['valves']:
+						if key == valve['deviceName']:
+							try:
+								arcOut[key]["data"].append({"x":data['timestamp'],"y":data[key]})
+							except:
+								arcOut[key] = {"name":key,"type":"valve","data":[{"x":data['timestamp'],"y":data[key]}]}
+	elif request.json['actionType'] == "merge":
+		archiveAll = []
+		for archFile in request.json['fileNames']:
+			try:
+				archiveData = json.loads(open(config['storage']+archFile).read())
+			except:
+				archiveData = []
+			archiveAll.append(archiveData)
+		firstDate = -1
+		firstKey = -1
+		for key,val in enumerate(archiveAll):
+			print val['brwDate']
+			if firstDate == -1:
+				firstDate = int(val['brwDate'])
+				firstKey = key
+			elif int(val['brwDate']) < firstDate:
+				firstDate = int(val['brwDate'])
+				firstKey = key
+		brwFile = archiveAll[firstKey]['brwDate']+'-'+archiveAll[firstKey]['brwr']+'-'+archiveAll[firstKey]['brwName']+'.brw'
+		arcOut = {"brwDate":archiveAll[firstKey]['brwDate'],"brwr":archiveAll[firstKey]['brwr'],"brwName":archiveAll[firstKey]['brwName'],"archive":[]}
+		for arcDat in archiveAll:
+			arcOut['archive'].append(arcDat['archive'])
+		arcOut['archive'].sort()
+		with open(config['storage']+brwFile,'w') as outfile:
+			json.dump(brwData,outfile)
+	elif request.json['actionType'] == "delete":
+		for archFile in request.json['fileNames']:
+			try:
+				os.remove(config['storage']+archFile)
+			except:
+				print "Error deleting file: ",archFile
+
 	return jsonify(arch=arcOut)
 
 @app.route('/_configRequest')
